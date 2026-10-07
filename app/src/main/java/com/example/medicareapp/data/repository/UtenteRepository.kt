@@ -38,4 +38,23 @@ class UtenteRepository {
                 onResult(false, errore.message)
             }
     }
+
+    fun getDottori(
+        onResult: (List<Utente>) -> Unit
+    ) {
+        db.collection("utenti")
+            .whereEqualTo("ruolo", "dottore")
+            .get()
+            .addOnSuccessListener { risultato ->
+
+                val dottori = risultato.documents.mapNotNull {
+                    it.toObject(Utente::class.java)
+                }
+
+                onResult(dottori)
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
 }

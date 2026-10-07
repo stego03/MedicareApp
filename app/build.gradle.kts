@@ -55,6 +55,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
