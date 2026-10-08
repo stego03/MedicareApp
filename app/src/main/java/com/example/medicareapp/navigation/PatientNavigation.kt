@@ -1,4 +1,3 @@
-
 package com.example.medicareapp.navigation
 
 import androidx.compose.foundation.layout.padding
@@ -15,11 +14,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.medicareapp.ui.paziente.areaPersonale.AreaPersonaleScreen
+import com.example.medicareapp.ui.paziente.documenti.DocumentoPazienteScreen
 import com.example.medicareapp.ui.paziente.home.HomePazienteScreen
 import com.example.medicareapp.ui.paziente.home.HomePazienteViewModel
 import com.example.medicareapp.ui.paziente.visite.VisitePazienteScreen
-import com.example.medicareapp.ui.paziente.documenti.DocumentoPazienteScreen
-import com.example.medicareapp.ui.paziente.notifiche.NotifichePazienteScreen
 
 @Composable
 fun PatientNavigation(
@@ -201,6 +199,29 @@ fun PatientNavigation(
                         Text("Area personale")
                     }
                 )
+
+
+                // -----------------------------------------
+                // LOGOUT
+                // -----------------------------------------
+
+                NavigationBarItem(
+
+                    selected = false,
+
+                    onClick = {
+
+                        onLogout()
+                    },
+
+                    icon = {
+                        Text("🚪")
+                    },
+
+                    label = {
+                        Text("Esci")
+                    }
+                )
             }
         }
 
@@ -221,7 +242,6 @@ fun PatientNavigation(
             modifier =
                 Modifier.padding(innerPadding)
         ) {
-
 
             // ---------------------------------------------
             // HOME PAZIENTE
@@ -257,6 +277,7 @@ fun PatientNavigation(
             composable(
                 route = Routes.DOCUMENTI_PAZIENTE
             ) {
+
                 DocumentoPazienteScreen()
             }
 
@@ -288,4 +309,3 @@ fun PatientNavigation(
         }
     }
 }
-
