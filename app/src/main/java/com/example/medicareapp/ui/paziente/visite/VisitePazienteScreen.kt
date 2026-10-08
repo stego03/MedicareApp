@@ -39,6 +39,9 @@ fun VisitePazienteScreen(
     val messaggio by
     viewModel.messaggio.collectAsState()
 
+    val dottori by
+    viewModel.dottori.collectAsState()
+
 
     var visitaDaCancellare by
     remember {
@@ -77,6 +80,9 @@ fun VisitePazienteScreen(
 
                 VisitaCard(
                     visita = visita,
+                    nomeDottore = dottori[visita.idDottore]?.let {
+                        "${it.nome} ${it.cognome}"
+                    } ?: "Dottore",
 
                     onCancella = {
 
@@ -173,6 +179,7 @@ fun VisitePazienteScreen(
 @Composable
 private fun VisitaCard(
     visita: Visita,
+    nomeDottore: String,
     onCancella: () -> Unit
 ) {
 
@@ -197,7 +204,7 @@ private fun VisitaCard(
             )
 
             Text(
-                text = "Dottore: ${visita.idDottore}"
+                text = "Dottore: $nomeDottore"
             )
 
             Spacer(

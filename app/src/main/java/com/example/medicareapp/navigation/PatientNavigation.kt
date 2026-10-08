@@ -142,6 +142,36 @@ fun PatientNavigation(
 
 
                 // -----------------------------------------
+                // NOTIFICHE
+                // -----------------------------------------
+
+                NavigationBarItem(
+
+                    selected =
+                        currentRoute ==
+                                Routes.NOTIFICHE_PAZIENTE,
+
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.NOTIFICHE_PAZIENTE
+                        ) {
+
+                            launchSingleTop = true
+                        }
+                    },
+
+                    icon = {
+                        Text("🔔")
+                    },
+
+                    label = {
+                        Text("Notifiche")
+                    }
+                )
+
+
+                // -----------------------------------------
                 // AREA PERSONALE
                 // -----------------------------------------
 
@@ -260,7 +290,21 @@ fun PatientNavigation(
                 route = Routes.AREA_PERSONALE_PAZIENTE
             ) {
 
-                AreaPersonaleScreen()
+                AreaPersonaleScreen(
+                    onLogout = onLogout
+                )
+            }
+
+
+            // ---------------------------------------------
+            // NOTIFICHE PAZIENTE
+            // ---------------------------------------------
+
+            composable(
+                route = Routes.NOTIFICHE_PAZIENTE
+            ) {
+
+                NotifichePazienteScreen()
             }
         }
     }

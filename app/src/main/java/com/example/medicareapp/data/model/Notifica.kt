@@ -6,6 +6,5 @@ data class Notifica(
     val titolo: String = "",
     val messaggio: String = "",
     val data: String = "",
-    val tipo: String = "",
-    val letta: Boolean = false
+    val tipo: String = ""
 )
