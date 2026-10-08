@@ -8,5 +8,6 @@ data class Documento(
     val tipo: String = "",
     val data: String = "",
     val descrizione: String = "",
-    val urlFile: String = ""
+    val urlFile: String = "",
+    val contenuto: String = ""
 )

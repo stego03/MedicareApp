@@ -1,4 +1,4 @@
-package com.example.medicareapp.ui.home
+package com.example.medicareapp.ui.paziente.home
 
 import androidx.lifecycle.ViewModel
 import com.example.medicareapp.data.model.Disponibilita
@@ -96,7 +96,7 @@ class HomePazienteViewModel : ViewModel() {
 
 
     // -------------------------------------------------
-    // CARICA DOTTORE
+    // CARICA DOTTORI
     // -------------------------------------------------
 
     private fun caricaDottori() {
@@ -122,10 +122,14 @@ class HomePazienteViewModel : ViewModel() {
 
         _orariDisponibili.value = emptyList()
 
+        _disponibilita.value = emptyList()
+
         _messaggioPrenotazione.value = null
 
+        // IMPORTANTE:
+        // idDottore = Firebase UID
         caricaDisponibilitaDottore(
-            dottore.codiceFiscale
+            dottore.uid
         )
     }
 
@@ -163,15 +167,17 @@ class HomePazienteViewModel : ViewModel() {
             _dottoreSelezionato.value
                 ?: return
 
+        // IMPORTANTE:
+        // idDottore = Firebase UID
         caricaOrariDisponibili(
-            idDottore = dottore.codiceFiscale,
+            idDottore = dottore.uid,
             data = data
         )
     }
 
 
     // -------------------------------------------------
-    // CARICA ORARI
+    // CARICA ORARI DISPONIBILI
     // -------------------------------------------------
 
     private fun caricaOrariDisponibili(
@@ -201,6 +207,10 @@ class HomePazienteViewModel : ViewModel() {
         onResult: (Boolean, String?) -> Unit
     ) {
 
+        // ---------------------------------------------
+        // UID DEL PAZIENTE
+        // ---------------------------------------------
+
         val idPaziente =
             authRepository.utenteCorrente()
 
@@ -215,6 +225,10 @@ class HomePazienteViewModel : ViewModel() {
         }
 
 
+        // ---------------------------------------------
+        // DOTTORE SELEZIONATO
+        // ---------------------------------------------
+
         val dottore =
             _dottoreSelezionato.value
 
@@ -228,6 +242,10 @@ class HomePazienteViewModel : ViewModel() {
             return
         }
 
+
+        // ---------------------------------------------
+        // DATA SELEZIONATA
+        // ---------------------------------------------
 
         val data =
             _giornoSelezionato.value
@@ -244,7 +262,7 @@ class HomePazienteViewModel : ViewModel() {
 
 
         // ---------------------------------------------
-        // CERCHIAMO LA DISPONIBILITÀ CORRISPONDENTE
+        // CERCA DISPONIBILITÀ
         // ---------------------------------------------
 
         val disponibilitaSelezionata =
@@ -272,9 +290,11 @@ class HomePazienteViewModel : ViewModel() {
 
         val visita = Visita(
 
+            // Firebase UID del paziente
             idPaziente = idPaziente,
 
-            idDottore = dottore.codiceFiscale,
+            // Firebase UID del dottore
+            idDottore = dottore.uid,
 
             data = data,
 

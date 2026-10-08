@@ -89,4 +89,57 @@ class DisponibilitaRepository {
                 onResult(false, errore.message)
             }
     }
+    // Rende nuovamente disponibile uno slot
+    fun ripristinaDisponibilita(
+        idDottore: String,
+        data: String,
+        ora: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+
+        db.collection("disponibilita")
+            .whereEqualTo("idDottore", idDottore)
+            .whereEqualTo("data", data)
+            .whereEqualTo("ora", ora)
+            .get()
+            .addOnSuccessListener { risultato ->
+
+                if (risultato.isEmpty) {
+
+                    onResult(
+                        false,
+                        "Slot di disponibilità non trovato"
+                    )
+
+                    return@addOnSuccessListener
+                }
+
+                val documento =
+                    risultato.documents.first()
+
+                documento.reference
+                    .update("stato", true)
+                    .addOnSuccessListener {
+
+                        onResult(
+                            true,
+                            null
+                        )
+                    }
+                    .addOnFailureListener { errore ->
+
+                        onResult(
+                            false,
+                            errore.message
+                        )
+                    }
+            }
+            .addOnFailureListener { errore ->
+
+                onResult(
+                    false,
+                    errore.message
+                )
+            }
+    }
 }
