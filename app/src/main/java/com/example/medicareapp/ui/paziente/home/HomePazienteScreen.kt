@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -23,10 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.medicareapp.data.model.Disponibilita
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.paziente.PatientSectionTitle
+import com.example.medicareapp.ui.paziente.PatientStatusMessage
+import com.example.medicareapp.ui.theme.MediCareBlue
+import com.example.medicareapp.ui.theme.MediCareBlueLight
+import com.example.medicareapp.ui.theme.MediCareSuccess
+import com.example.medicareapp.ui.theme.MediCareSuccessLight
 import java.time.YearMonth
 
 
@@ -35,9 +45,10 @@ fun HomePazienteScreen(
     viewModel: HomePazienteViewModel
 ) {
 
-    // -------------------------------------------------
-    // DATI DAL VIEWMODEL
-    // -------------------------------------------------
+    /*
+     * Il ViewModel continua è l'unica fonte dei dati
+     * relativi a medici, disponibilità, giorno e prenotazione.
+     */
 
     val dottori by
     viewModel.dottori.collectAsState()
@@ -58,9 +69,11 @@ fun HomePazienteScreen(
     viewModel.messaggioPrenotazione.collectAsState()
 
 
-    // -------------------------------------------------
-    // STATO LOCALE
-    // -------------------------------------------------
+    /*
+     * menuAperto: controlla solamente la visualizzazione del menu.
+     *
+     * meseVisualizzato: controlla solamente quale mese mostrare nel calendario.
+     */
 
     var menuAperto by remember {
         mutableStateOf(false)
@@ -70,96 +83,112 @@ fun HomePazienteScreen(
         mutableStateOf(YearMonth.now())
     }
 
-
-    // -------------------------------------------------
-    // SCHERMATA
-    // -------------------------------------------------
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(
+                horizontal = 20.dp,
+                vertical = 20.dp
+            )
     ) {
 
-        // =================================================
-        // SELEZIONE DOTTORE
-        // =================================================
-
-        Text(
-            text = "Seleziona dottore"
+        //Titolo comune della sezione Paziente.
+        PatientScreenTitle(
+            title = "Prenota una visita",
+            subtitle = "Scegli il medico, il giorno e l'orario che preferisci."
         )
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(24.dp)
         )
 
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        //DropDown menu che permette selezione del dottore
+        PatientCard {
 
-            OutlinedButton(
-                onClick = {
-                    menuAperto = true
-                },
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier.padding(16.dp)
             ) {
 
-                Text(
-                    text = dottoreSelezionato?.let {
-                        "${it.nome} ${it.cognome}"
-                    } ?: "Seleziona un dottore"
+                PatientSectionTitle(
+                    title = "Medico"
                 )
-            }
 
+                Spacer(
+                    modifier = Modifier.height(10.dp)
+                )
 
-            // ---------------------------------------------
-            // MENU DOTTORI
-            // ---------------------------------------------
+                Box(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
 
-            DropdownMenu(
-                expanded = menuAperto,
-                onDismissRequest = {
-                    menuAperto = false
-                }
-            ) {
-
-                if (dottori.isEmpty()) {
-
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = "Nessun dottore disponibile"
-                            )
-                        },
+                    OutlinedButton(
                         onClick = {
+                            menuAperto = true
+                        },
+
+                        modifier =
+                            Modifier.fillMaxWidth()
+                    ) {
+
+                        Text(
+                            text =
+                                dottoreSelezionato?.let {
+                                    "${it.nome} ${it.cognome}"
+                                } ?: "Seleziona un dottore"
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = menuAperto,
+
+                        onDismissRequest = {
                             menuAperto = false
                         }
-                    )
+                    ) {
+                        //Caso in cui non ci sono dottori salvati
+                        if (dottori.isEmpty()) {
 
-                } else {
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text =
+                                            "Nessun dottore disponibile"
+                                    )
+                                },
 
-                    dottori.forEach { dottore ->
+                                onClick = {
+                                    menuAperto = false
+                                }
+                            )
 
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text =
-                                        "${dottore.nome} ${dottore.cognome}"
+                        } else {
+                            //Nel caso ci siano si inseriscono come item del DropDownMenu con nome e cognome
+                            dottori.forEach { dottore ->
+
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text =
+                                                "${dottore.nome} ${dottore.cognome}"
+                                        )
+                                    },
+
+                                    onClick = {
+
+                                        viewModel.selezionaDottore(
+                                            dottore
+                                        )
+
+
+                                         // Quando cambia medico torniamo al mese corrente.
+                                        meseVisualizzato =
+                                            YearMonth.now()
+
+                                        menuAperto = false
+                                    }
                                 )
-                            },
-                            onClick = {
-
-                                viewModel.selezionaDottore(
-                                    dottore
-                                )
-
-                                // Torniamo al mese corrente
-                                meseVisualizzato =
-                                    YearMonth.now()
-
-                                menuAperto = false
                             }
-                        )
+                        }
                     }
                 }
             }
@@ -167,109 +196,151 @@ fun HomePazienteScreen(
 
 
         Spacer(
-            modifier = Modifier.height(24.dp)
+            modifier = Modifier.height(20.dp)
         )
 
 
-        // =================================================
-        // CALENDARIO
-        // =================================================
+        /*
+         * Mostriamo il calendario solamente quando è stato
+         * selezionato un medico.
+         */
 
         if (dottoreSelezionato != null) {
 
-            CalendarioPaziente(
-                mese = meseVisualizzato,
-                disponibilita = disponibilita,
-                giornoSelezionato = giornoSelezionato,
+            PatientCard {
 
-                onCambioMese = { nuovoMese ->
+                Column(
+                    modifier =
+                        Modifier.padding(16.dp)
+                ) {
 
-                    meseVisualizzato = nuovoMese
-                },
+                    PatientSectionTitle(
+                        title = "Scegli il giorno"
+                    )
 
-                onSelezionaGiorno = { data ->
+                    Spacer(
+                        modifier =
+                            Modifier.height(12.dp)
+                    )
 
-                    viewModel.selezionaGiorno(
-                        data
+                    CalendarioPaziente(
+                        mese = meseVisualizzato,
+
+                        disponibilita =
+                            disponibilita,
+
+                        giornoSelezionato =
+                            giornoSelezionato,
+
+                        onCambioMese = { nuovoMese ->
+                            meseVisualizzato = nuovoMese
+                        },
+
+                        onSelezionaGiorno = { data ->
+                            viewModel.selezionaGiorno(
+                                data
+                            )
+                        }
                     )
                 }
-            )
+            }
 
 
             Spacer(
-                modifier = Modifier.height(24.dp)
+                modifier =
+                    Modifier.height(20.dp)
             )
 
 
-            // =================================================
             // ORARI DISPONIBILI
-            // =================================================
-
             if (giornoSelezionato != null) {
 
-                Text(
-                    text = "Orari disponibili"
+                PatientSectionTitle(
+                    title = "Orari disponibili"
                 )
 
                 Spacer(
-                    modifier = Modifier.height(8.dp)
+                    modifier =
+                        Modifier.height(10.dp)
                 )
 
 
                 if (orariDisponibili.isEmpty()) {
 
-                    Text(
-                        text = "Nessun orario disponibile."
+                    /*
+                     * Nessun orario non viene considerato un errore.
+                     * È semplicemente uno stato vuoto della schermata.
+                     */
+                    PatientStatusMessage(
+                        message =
+                            "Nessun orario disponibile.",
+                        success = false
                     )
 
                 } else {
 
-                    orariDisponibili.forEach { ora ->
+                    Column {
 
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    vertical = 4.dp
-                                )
-                                .background(
-                                    color =
-                                        Color(0xFFE8F5E9),
-                                    shape =
-                                        RoundedCornerShape(8.dp)
-                                )
-                                .clickable {
+                        orariDisponibili.forEach { ora ->
+                             //disponibilità selezionabile.
 
-                                    viewModel.prenotaVisita(
-                                        ora = ora
-                                    ) { _, _ ->
-                                        // Il risultato viene
-                                        // gestito dal ViewModel
-                                    }
+                            Surface(
+
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        vertical = 4.dp
+                                    )
+                                    .clickable {
+                                        viewModel.prenotaVisita(
+                                            ora = ora
+                                        ) { _, _ ->
+                                        }
+                                    },
+
+                                shape =
+                                    RoundedCornerShape(12.dp),
+
+                                color =
+                                    MediCareSuccessLight
+                            ) {
+
+                                Row(
+                                    modifier =
+                                        Modifier.padding(
+                                            16.dp
+                                        ),
+
+                                    verticalAlignment =
+                                        Alignment.CenterVertically
+                                ) {
+
+                                    Text(
+                                        text = ora,
+
+                                        style =
+                                            MaterialTheme
+                                                .typography
+                                                .titleMedium,
+
+                                        color =
+                                            MediCareSuccess
+                                    )
                                 }
-                                .padding(16.dp)
-                        ) {
-
-                            Text(
-                                text = ora
-                            )
+                            }
                         }
                     }
                 }
 
-
-                // =================================================
-                // MESSAGGIO PRENOTAZIONE
-                // =================================================
-
                 messaggioPrenotazione?.let { messaggio ->
 
                     Spacer(
-                        modifier = Modifier.height(16.dp)
+                        modifier =
+                            Modifier.height(16.dp)
                     )
 
-                    Text(
-                        text = messaggio
+                    PatientStatusMessage(
+                        message = messaggio
                     )
                 }
             }
@@ -278,10 +349,7 @@ fun HomePazienteScreen(
 }
 
 
-// =========================================================
-// CALENDARIO PAZIENTE
-// =========================================================
-
+//Calendario paziente
 @Composable
 fun CalendarioPaziente(
     mese: YearMonth,
@@ -297,32 +365,28 @@ fun CalendarioPaziente(
     val numeroGiorni =
         mese.lengthOfMonth()
 
+
     /*
      * dayOfWeek.value:
-     *
      * Lunedì = 1
      * Martedì = 2
      * ...
      * Domenica = 7
      *
-     * Sottraendo 1 otteniamo l'offset
-     * necessario per il calendario.
+     * Sottraendo 1 otteniamo l'offset necessario.
      */
-
     val offset =
         primoGiorno.dayOfWeek.value - 1
 
 
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier =
+            Modifier.fillMaxWidth()
     ) {
-
-        // =================================================
-        // HEADER DEL MESE
-        // =================================================
-
+        //Header mese
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier.fillMaxWidth(),
 
             horizontalArrangement =
                 Arrangement.SpaceBetween,
@@ -333,7 +397,6 @@ fun CalendarioPaziente(
 
             TextButton(
                 onClick = {
-
                     onCambioMese(
                         mese.minusMonths(1)
                     )
@@ -341,13 +404,29 @@ fun CalendarioPaziente(
             ) {
 
                 Text(
-                    text = "‹"
+                    text = "‹",
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .titleLarge,
+
+                    color =
+                        MediCareBlue
                 )
             }
 
 
             Text(
-                text = nomeMese(mese)
+                text = nomeMese(mese),
+
+                style =
+                    MaterialTheme
+                        .typography
+                        .titleMedium,
+
+                fontWeight =
+                    FontWeight.SemiBold
             )
 
 
@@ -361,23 +440,30 @@ fun CalendarioPaziente(
             ) {
 
                 Text(
-                    text = "›"
+                    text = "›",
+
+                    style =
+                        MaterialTheme
+                            .typography
+                            .titleLarge,
+
+                    color =
+                        MediCareBlue
                 )
             }
         }
 
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier =
+                Modifier.height(8.dp)
         )
 
 
-        // =================================================
-        // GIORNI DELLA SETTIMANA
-        // =================================================
-
+      //Giorni della settimana
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier =
+                Modifier.fillMaxWidth()
         ) {
 
             val giorniSettimana =
@@ -404,7 +490,17 @@ fun CalendarioPaziente(
                 ) {
 
                     Text(
-                        text = giorno
+                        text = giorno,
+
+                        style =
+                            MaterialTheme
+                                .typography
+                                .labelLarge,
+
+                        color =
+                            MaterialTheme
+                                .colorScheme
+                                .onSurfaceVariant
                     )
                 }
             }
@@ -412,14 +508,12 @@ fun CalendarioPaziente(
 
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier =
+                Modifier.height(8.dp)
         )
 
 
-        // =================================================
-        // GIORNI DEL MESE
-        // =================================================
-
+        //Giorni del mese
         val totaleCelle =
             offset + numeroGiorni
 
@@ -430,7 +524,8 @@ fun CalendarioPaziente(
         for (riga in 0 until numeroRighe) {
 
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier =
+                    Modifier.fillMaxWidth()
             ) {
 
                 for (colonna in 0..6) {
@@ -439,10 +534,10 @@ fun CalendarioPaziente(
                         riga * 7 + colonna
 
 
-                    // -----------------------------------------
-                    // CELLA VUOTA
-                    // -----------------------------------------
-
+                    /*
+                     * Celle vuote prima del primo giorno
+                     * e dopo l'ultimo giorno.
+                     */
                     if (
                         indice < offset ||
                         indice >= totaleCelle
@@ -456,46 +551,33 @@ fun CalendarioPaziente(
 
                     } else {
 
-                        // -----------------------------------------
-                        // GIORNO
-                        // -----------------------------------------
-
                         val giorno =
                             indice - offset + 1
-
 
                         val data =
                             mese.atDay(giorno)
 
-
                         /*
-                         * LocalDate.toString()
-                         * restituisce:
+                         * LocalDate.toString() restituisce:
                          *
                          * yyyy-MM-dd
                          *
-                         * Esempio:
-                         * 2026-10-15
+                         * Manteniamo esattamente questo formato
+                         * perché viene utilizzato dalla logica
+                         * delle disponibilità.
                          */
-
                         val dataString =
                             data.toString()
 
 
-                        // -----------------------------------------
-                        // CONTROLLO DISPONIBILITÀ
-                        // -----------------------------------------
-
+                        //Controllo disponibilità
                         val disponibile =
                             disponibilita.any {
                                 it.data == dataString
                             }
 
 
-                        // -----------------------------------------
-                        // CONTROLLO SELEZIONE
-                        // -----------------------------------------
-
+                        //Controllo selezione
                         val selezionato =
                             giornoSelezionato ==
                                     dataString
@@ -516,6 +598,10 @@ fun CalendarioPaziente(
 
                             onClick = {
 
+                                /*
+                                 * La data viene ancora passata
+                                 * alla funzione originale.
+                                 */
                                 onSelezionaGiorno(
                                     dataString
                                 )
@@ -529,10 +615,13 @@ fun CalendarioPaziente(
 }
 
 
-// =========================================================
-// SINGOLO GIORNO DEL CALENDARIO
-// =========================================================
-
+/*
+ * SINGOLO GIORNO DEL CALENDARIO
+ *
+ * - blu = selezionato
+ * - celeste = disponibile
+ * - grigio = non disponibile
+ */
 @Composable
 fun GiornoCalendario(
     modifier: Modifier = Modifier,
@@ -542,52 +631,52 @@ fun GiornoCalendario(
     onClick: () -> Unit
 ) {
 
-    /*
-     * Colore dello sfondo:
-     *
-     * Blu   = giorno selezionato
-     * Verde = giorno disponibile
-     * Rosso = giorno non disponibile
-     */
-
     val coloreSfondo = when {
 
         selezionato ->
-            Color(0xFF1976D2)
+            MediCareBlue
 
         disponibile ->
-            Color(0xFFE8F5E9)
+            MediCareBlueLight
 
         else ->
-            Color(0xFFFFEBEE)
+            MaterialTheme
+                .colorScheme
+                .surfaceVariant
     }
 
-
-    /*
-     * Colore del numero:
-     */
 
     val coloreTesto = when {
 
         selezionato ->
-            Color.White
+            MaterialTheme
+                .colorScheme
+                .onPrimary
 
         disponibile ->
-            Color(0xFF2E7D32)
+            MediCareBlue
 
         else ->
-            Color.Red
+            MaterialTheme
+                .colorScheme
+                .onSurfaceVariant
     }
 
 
     Box(
+
         modifier = modifier
             .height(50.dp)
             .padding(4.dp)
+
             .background(
                 color = coloreSfondo,
-                shape = RoundedCornerShape(8.dp)
+                //Angoli arrotondati
+                shape =
+                    RoundedCornerShape(10.dp)
             )
+
+            // Un giorno non disponibile non è cliccabile
             .clickable(
                 enabled = disponibile,
                 onClick = onClick
@@ -599,16 +688,21 @@ fun GiornoCalendario(
 
         Text(
             text = giorno.toString(),
-            color = coloreTesto
+
+            color = coloreTesto,
+
+            fontWeight =
+                if (selezionato) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                }
         )
     }
 }
 
 
-// =========================================================
-// NOME DEL MESE
-// =========================================================
-
+//Nome del mese
 fun nomeMese(
     mese: YearMonth
 ): String {
@@ -655,4 +749,3 @@ fun nomeMese(
             "${mese.month} ${mese.year}"
     }
 }
-
