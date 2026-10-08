@@ -32,7 +32,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AreaPersonaleScreen(
-    viewModel: AreaPersonaleViewModel = viewModel()
+    viewModel: AreaPersonaleViewModel = viewModel(),
+    onLogout: () -> Unit
 ) {
 
     val utente by viewModel.utente.collectAsState()
@@ -466,6 +467,19 @@ fun AreaPersonaleScreen(
 
             Text(
                 text = it
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
+
+        Button(
+            onClick = onLogout,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "Esci"
             )
         }
 

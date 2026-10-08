@@ -87,7 +87,16 @@ fun AppNavigation() {
             Routes.MAIN_PAZIENTE
         ) {
 
-            PatientNavigation()
+            PatientNavigation(
+                onLogout = {
+                    AuthRepository().logout()
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.MAIN_PAZIENTE) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
     }
 }

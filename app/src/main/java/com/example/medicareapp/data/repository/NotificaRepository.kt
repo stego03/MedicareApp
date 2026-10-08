@@ -7,7 +7,8 @@ class NotificaRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Recupera le notifiche di un utente
+    // Recupera esclusivamente le notifiche destinate al paziente.
+    // Il paziente ha solo permessi di lettura nella UI.
     fun getNotificheUtente(
         idUtente: String,
         onResult: (List<Notifica>) -> Unit
@@ -16,19 +17,21 @@ class NotificaRepository {
             .whereEqualTo("idUtente", idUtente)
             .get()
             .addOnSuccessListener { risultato ->
-
                 val notifiche = risultato.documents.mapNotNull {
                     it.toObject(Notifica::class.java)
                 }
 
-                onResult(notifiche)
+                onResult(
+                    notifiche.sortedByDescending { it.data }
+                )
             }
             .addOnFailureListener {
                 onResult(emptyList())
             }
     }
 
-    // Crea una nuova notifica
+    // Metodo predisposto per il futuro lato Dottore.
+    // Non viene chiamato dalla parte Paziente.
     fun creaNotifica(
         notifica: Notifica,
         onResult: (Boolean, String?) -> Unit
@@ -41,22 +44,6 @@ class NotificaRepository {
 
         riferimento
             .set(nuovaNotifica)
-            .addOnSuccessListener {
-                onResult(true, null)
-            }
-            .addOnFailureListener { errore ->
-                onResult(false, errore.message)
-            }
-    }
-
-    // Segna una notifica come letta
-    fun segnaComeLetta(
-        idNotifica: String,
-        onResult: (Boolean, String?) -> Unit
-    ) {
-        db.collection("notifiche")
-            .document(idNotifica)
-            .update("letta", true)
             .addOnSuccessListener {
                 onResult(true, null)
             }

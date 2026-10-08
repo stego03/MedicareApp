@@ -19,9 +19,12 @@ import com.example.medicareapp.ui.paziente.home.HomePazienteScreen
 import com.example.medicareapp.ui.paziente.home.HomePazienteViewModel
 import com.example.medicareapp.ui.paziente.visite.VisitePazienteScreen
 import com.example.medicareapp.ui.paziente.documenti.DocumentoPazienteScreen
+import com.example.medicareapp.ui.paziente.notifiche.NotifichePazienteScreen
 
 @Composable
-fun PatientNavigation() {
+fun PatientNavigation(
+    onLogout: () -> Unit
+) {
 
     // =================================================
     // NAV CONTROLLER DEL PAZIENTE
@@ -141,6 +144,36 @@ fun PatientNavigation() {
 
 
                 // -----------------------------------------
+                // NOTIFICHE
+                // -----------------------------------------
+
+                NavigationBarItem(
+
+                    selected =
+                        currentRoute ==
+                                Routes.NOTIFICHE_PAZIENTE,
+
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.NOTIFICHE_PAZIENTE
+                        ) {
+
+                            launchSingleTop = true
+                        }
+                    },
+
+                    icon = {
+                        Text("🔔")
+                    },
+
+                    label = {
+                        Text("Notifiche")
+                    }
+                )
+
+
+                // -----------------------------------------
                 // AREA PERSONALE
                 // -----------------------------------------
 
@@ -236,7 +269,21 @@ fun PatientNavigation() {
                 route = Routes.AREA_PERSONALE_PAZIENTE
             ) {
 
-                AreaPersonaleScreen()
+                AreaPersonaleScreen(
+                    onLogout = onLogout
+                )
+            }
+
+
+            // ---------------------------------------------
+            // NOTIFICHE PAZIENTE
+            // ---------------------------------------------
+
+            composable(
+                route = Routes.NOTIFICHE_PAZIENTE
+            ) {
+
+                NotifichePazienteScreen()
             }
         }
     }

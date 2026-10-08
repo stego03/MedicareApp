@@ -31,4 +31,6 @@ object Routes {
     const val DOCUMENTI_PAZIENTE = "documentiPaziente"
 
     const val AREA_PERSONALE_PAZIENTE = "areaPersonalePaziente"
+
+    const val NOTIFICHE_PAZIENTE = "notifichePaziente"
 }
