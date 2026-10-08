@@ -8,25 +8,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.medicareapp.ui.paziente.areaPersonale.AreaPersonaleScreen
-import com.example.medicareapp.ui.paziente.documenti.DocumentoPazienteScreen
-import com.example.medicareapp.ui.paziente.home.HomePazienteScreen
-import com.example.medicareapp.ui.paziente.home.HomePazienteViewModel
-import com.example.medicareapp.ui.paziente.visite.VisitePazienteScreen
+import com.example.medicareapp.ui.dottore.home.HomeDottoreScreen
+import com.example.medicareapp.ui.dottore.indisponibilita.IndisponibilitaScreen
 
 @Composable
-fun PatientNavigation(
+fun DoctorNavigation(
     onLogout: () -> Unit
 ) {
-
-    // =================================================
-    // NAV CONTROLLER DEL PAZIENTE
-    // =================================================
 
     val navController = rememberNavController()
 
@@ -36,39 +28,36 @@ fun PatientNavigation(
     val currentRoute =
         navBackStackEntry?.destination?.route
 
-
-    // =================================================
-    // SCAFFOLD
-    // =================================================
-
     Scaffold(
 
         bottomBar = {
 
             NavigationBar {
 
-                // -----------------------------------------
+                // =========================================
                 // HOME
-                // -----------------------------------------
+                // =========================================
 
                 NavigationBarItem(
 
                     selected =
-                        currentRoute == Routes.HOME_PAZIENTE,
+                        currentRoute == Routes.HOME_DOTTORE,
 
                     onClick = {
 
                         navController.navigate(
-                            Routes.HOME_PAZIENTE
+                            Routes.HOME_DOTTORE
                         ) {
 
+                            launchSingleTop = true
+
                             popUpTo(
-                                Routes.HOME_PAZIENTE
+                                Routes.HOME_DOTTORE
                             ) {
-                                inclusive = false
+                                saveState = true
                             }
 
-                            launchSingleTop = true
+                            restoreState = true
                         }
                     },
 
@@ -81,23 +70,30 @@ fun PatientNavigation(
                     }
                 )
 
-
-                // -----------------------------------------
+                // =========================================
                 // VISITE
-                // -----------------------------------------
+                // =========================================
 
                 NavigationBarItem(
 
                     selected =
-                        currentRoute == Routes.VISITE_PAZIENTE,
+                        currentRoute == Routes.VISITE_DOTTORE,
 
                     onClick = {
 
                         navController.navigate(
-                            Routes.VISITE_PAZIENTE
+                            Routes.VISITE_DOTTORE
                         ) {
 
                             launchSingleTop = true
+
+                            popUpTo(
+                                Routes.HOME_DOTTORE
+                            ) {
+                                saveState = true
+                            }
+
+                            restoreState = true
                         }
                     },
 
@@ -110,77 +106,89 @@ fun PatientNavigation(
                     }
                 )
 
-
-                // -----------------------------------------
-                // DOCUMENTI
-                // -----------------------------------------
-
-                NavigationBarItem(
-
-                    selected =
-                        currentRoute ==
-                                Routes.DOCUMENTI_PAZIENTE,
-
-                    onClick = {
-
-                        navController.navigate(
-                            Routes.DOCUMENTI_PAZIENTE
-                        ) {
-
-                            launchSingleTop = true
-                        }
-                    },
-
-                    icon = {
-                        Text("📄")
-                    },
-
-                    label = {
-                        Text("Documenti")
-                    }
-                )
-
-
-                // -----------------------------------------
-                // AREA PERSONALE
-                // -----------------------------------------
+                // =========================================
+                // DISPONIBILITÀ
+                // =========================================
 
                 NavigationBarItem(
 
                     selected =
                         currentRoute ==
-                                Routes.AREA_PERSONALE_PAZIENTE,
+                                Routes.DISPONIBILITA_DOTTORE,
 
                     onClick = {
 
                         navController.navigate(
-                            Routes.AREA_PERSONALE_PAZIENTE
+                            Routes.DISPONIBILITA_DOTTORE
                         ) {
 
                             launchSingleTop = true
+
+                            popUpTo(
+                                Routes.HOME_DOTTORE
+                            ) {
+                                saveState = true
+                            }
+
+                            restoreState = true
                         }
                     },
 
                     icon = {
-                        Text("👤")
+                        Text("🕐")
                     },
 
                     label = {
-                        Text("Area personale")
+                        Text("Disponibilità")
                     }
                 )
 
+                // =========================================
+                // NOTIFICHE
+                // =========================================
 
-                // -----------------------------------------
+                NavigationBarItem(
+
+                    selected =
+                        currentRoute ==
+                                Routes.NOTIFICHE_DOTTORE,
+
+                    onClick = {
+
+                        navController.navigate(
+                            Routes.NOTIFICHE_DOTTORE
+                        ) {
+
+                            launchSingleTop = true
+
+                            popUpTo(
+                                Routes.HOME_DOTTORE
+                            ) {
+                                saveState = true
+                            }
+
+                            restoreState = true
+                        }
+                    },
+
+                    icon = {
+                        Text("🔔")
+                    },
+
+                    label = {
+                        Text("Notifiche")
+                    }
+                )
+
+                // =========================================
                 // LOGOUT
-                // -----------------------------------------
+                // =========================================
 
                 NavigationBarItem(
 
                     selected = false,
 
                     onClick = {
-
                         onLogout()
                     },
 
@@ -197,70 +205,64 @@ fun PatientNavigation(
 
     ) { innerPadding ->
 
-
-        // =================================================
-        // NAV HOST PAZIENTE
-        // =================================================
-
         NavHost(
 
             navController = navController,
 
             startDestination =
-                Routes.HOME_PAZIENTE,
+                Routes.HOME_DOTTORE,
 
             modifier =
                 Modifier.padding(innerPadding)
+
         ) {
 
-            // ---------------------------------------------
-            // HOME PAZIENTE
-            // ---------------------------------------------
+            // =========================================
+            // HOME
+            // =========================================
 
             composable(
-                route = Routes.HOME_PAZIENTE
+                Routes.HOME_DOTTORE
             ) {
 
-                HomePazienteScreen(
-                    viewModel =
-                        viewModel<HomePazienteViewModel>()
+                HomeDottoreScreen()
+            }
+
+            // =========================================
+            // VISITE
+            // =========================================
+
+            composable(
+                Routes.VISITE_DOTTORE
+            ) {
+
+                Text(
+                    text = "Visite Dottore"
                 )
             }
 
-
-            // ---------------------------------------------
-            // VISITE PAZIENTE
-            // ---------------------------------------------
+            // =========================================
+            // DISPONIBILITÀ
+            // =========================================
 
             composable(
-                route = Routes.VISITE_PAZIENTE
+                Routes.DISPONIBILITA_DOTTORE
             ) {
 
-                VisitePazienteScreen()
+                IndisponibilitaScreen()
             }
 
-
-            // ---------------------------------------------
-            // DOCUMENTI PAZIENTE
-            // ---------------------------------------------
-
-            composable(
-                route = Routes.DOCUMENTI_PAZIENTE
-            ) {
-
-                DocumentoPazienteScreen()
-            }
-
-
-            // ---------------------------------------------
-            // AREA PERSONALE
-            // ---------------------------------------------
+            // =========================================
+            // NOTIFICHE
+            // =========================================
 
             composable(
-                route = Routes.AREA_PERSONALE_PAZIENTE
+                Routes.NOTIFICHE_DOTTORE
             ) {
 
-                AreaPersonaleScreen()
+                Text(
+                    text = "Notifiche Dottore"
+                )
             }
         }
     }
