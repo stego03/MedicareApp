@@ -1,13 +1,10 @@
 package com.example.medicareapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.medicareapp.data.repository.AuthRepository
-import com.example.medicareapp.ui.home.HomePazienteScreen
-import com.example.medicareapp.ui.home.HomePazienteViewModel
 import com.example.medicareapp.ui.login.LoginScreen
 import com.example.medicareapp.ui.registrazione.RegistrazioneScreen
 
@@ -18,28 +15,49 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "login"
+        startDestination = Routes.LOGIN
     ) {
 
-        composable("login") {
+        // -----------------------------------------
+        // LOGIN
+        // -----------------------------------------
+
+        composable(
+            Routes.LOGIN
+        ) {
 
             LoginScreen(
 
                 onLoginSuccess = {
-                    navController.navigate("home") {
-                        popUpTo("login") {
+
+                    navController.navigate(
+                        Routes.MAIN_PAZIENTE
+                    ) {
+
+                        popUpTo(
+                            Routes.LOGIN
+                        ) {
                             inclusive = true
                         }
                     }
                 },
 
                 onRegistrazioneClick = {
-                    navController.navigate("registrazione")
+
+                    navController.navigate(
+                        Routes.REGISTRAZIONE
+                    )
                 }
             )
         }
 
-        composable("registrazione") {
+        // -----------------------------------------
+        // REGISTRAZIONE
+        // -----------------------------------------
+
+        composable(
+            Routes.REGISTRAZIONE
+        ) {
 
             RegistrazioneScreen(
 
@@ -47,8 +65,13 @@ fun AppNavigation() {
 
                     AuthRepository().logout()
 
-                    navController.navigate("login") {
-                        popUpTo("registrazione") {
+                    navController.navigate(
+                        Routes.LOGIN
+                    ) {
+
+                        popUpTo(
+                            Routes.REGISTRAZIONE
+                        ) {
                             inclusive = true
                         }
                     }
@@ -56,11 +79,15 @@ fun AppNavigation() {
             )
         }
 
-        composable("home") {
+        // -----------------------------------------
+        // AREA PAZIENTE
+        // -----------------------------------------
 
-            HomePazienteScreen(
-                viewModel = viewModel<HomePazienteViewModel>()
-            )
+        composable(
+            Routes.MAIN_PAZIENTE
+        ) {
+
+            PatientNavigation()
         }
     }
 }

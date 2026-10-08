@@ -1,5 +1,4 @@
-
-package com.example.medicareapp.ui.home
+package com.example.medicareapp.ui.paziente.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
