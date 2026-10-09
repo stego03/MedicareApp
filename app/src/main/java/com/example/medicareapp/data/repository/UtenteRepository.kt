@@ -57,4 +57,28 @@ class UtenteRepository {
                 onResult(emptyList())
             }
     }
+
+
+    fun getPazienti(
+        onResult: (List<Utente>) -> Unit
+    ) {
+        db.collection("utenti")
+            .whereEqualTo("ruolo", "paziente")
+            .get()
+            .addOnSuccessListener { risultato ->
+                val pazienti = risultato.documents.mapNotNull { documento ->
+                    documento.toObject(Utente::class.java)
+                }
+
+                onResult(
+                    pazienti.sortedBy {
+                        "${it.cognome} ${it.nome}"
+                    }
+                )
+            }
+            .addOnFailureListener {
+                onResult(emptyList())
+            }
+    }
+
 }
