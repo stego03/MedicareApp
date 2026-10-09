@@ -25,6 +25,21 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medicareapp.data.model.Visita
 
+//Aggiunta import
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.paziente.PatientStatusMessage
+import com.example.medicareapp.ui.theme.MediCareBlue
+import com.example.medicareapp.ui.theme.MediCareBlueLight
+import com.example.medicareapp.ui.theme.MediCareError
+
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material3.MaterialTheme
+
 @Composable
 fun VisitePazienteScreen(
     viewModel: VisitePazienteViewModel = viewModel()
@@ -55,8 +70,9 @@ fun VisitePazienteScreen(
             .padding(16.dp)
     ) {
 
-        Text(
-            text = "Le mie visite"
+        PatientScreenTitle(
+            title = "Le mie visite",
+            subtitle = "Controlla i tuoi appuntamenti e lo stato delle visite."
         )
 
         Spacer(
@@ -70,8 +86,9 @@ fun VisitePazienteScreen(
 
         } else if (visite.isEmpty()) {
 
-            Text(
-                text = "Non hai visite."
+            PatientStatusMessage(
+                message = "Non hai visite disponibili.",
+                false
             )
 
         } else {
@@ -182,61 +199,86 @@ private fun VisitaCard(
     nomeDottore: String,
     onCancella: () -> Unit
 ) {
-
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
+    PatientCard {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            // Data e ora sono le informazioni più importanti:
+            // vengono mostrate subito nella parte alta della card.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = visita.data,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = visita.ora,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MediCareBlue
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (visita.stato == "prenotato") {
+                        MediCareBlueLight
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    }
+                ) {
+                    Text(
+                        text = visita.stato.replaceFirstChar { it.uppercase() },
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 6.dp
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (visita.stato == "prenotato") {
+                            MediCareBlue
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Data: ${visita.data}"
+                text = "Dottore",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            Spacer(modifier = Modifier.height(3.dp))
 
             Text(
-                text = "Ora: ${visita.ora}"
+                text = nomeDottore,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
             )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Text(
-                text = "Dottore: $nomeDottore"
-            )
-
-            Spacer(
-                modifier = Modifier.height(8.dp)
-            )
-
-            Text(
-                text = "Stato: ${visita.stato}"
-            )
-
 
             if (visita.stato == "prenotato") {
+                Spacer(modifier = Modifier.height(14.dp))
 
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-
-                    horizontalArrangement =
-                        Arrangement.End
+                TextButton(
+                    onClick = onCancella,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-
-                    Button(
-                        onClick = onCancella
-                    ) {
-
-                        Text(
-                            text = "Cancella"
-                        )
-                    }
+                    Text(
+                        text = "Cancella visita",
+                        color = MediCareError,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }

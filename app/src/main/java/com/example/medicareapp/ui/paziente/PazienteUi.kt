@@ -28,7 +28,7 @@ import com.example.medicareapp.ui.theme.MediCareSuccessLight
 import com.example.medicareapp.ui.theme.MediCareTextSecondary
 
 /*
- * Componenti comuni alla sezione Paziente.
+ * Componenti grafici comuni alle schermate del paziente.
  * Loro utilità è quella di mantenere la stessa struttura grafica
  * in tutte le schermate del paziente.
  */
