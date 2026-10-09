@@ -18,6 +18,7 @@ import com.example.medicareapp.ui.paziente.documenti.DocumentoPazienteScreen
 import com.example.medicareapp.ui.paziente.home.HomePazienteScreen
 import com.example.medicareapp.ui.paziente.home.HomePazienteViewModel
 import com.example.medicareapp.ui.paziente.visite.VisitePazienteScreen
+import com.example.medicareapp.ui.paziente.notifiche.NotifichePazienteScreen
 
 @Composable
 fun PatientNavigation(
