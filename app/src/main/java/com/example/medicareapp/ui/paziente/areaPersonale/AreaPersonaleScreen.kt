@@ -1,4 +1,3 @@
-
 package com.example.medicareapp.ui.paziente.areaPersonale
 
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +12,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,32 +25,39 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-//Aggiunta di import per abbellimento Area personale paziente
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import com.example.medicareapp.ui.paziente.PatientCard
 import com.example.medicareapp.ui.paziente.PatientScreenTitle
 import com.example.medicareapp.ui.paziente.PatientSectionTitle
 import com.example.medicareapp.ui.paziente.PatientStatusMessage
-import com.example.medicareapp.ui.theme.MediCareBlue
-import com.example.medicareapp.ui.theme.MediCareBlueLight
+
 
 @Composable
 fun AreaPersonaleScreen(
     viewModel: AreaPersonaleViewModel = viewModel(),
     onLogout: () -> Unit
 ) {
-
+    // =========================================================
+    // STATO DEL VIEWMODEL
+    // =========================================================
+    //
+    // La schermata rimane "stupida": legge gli StateFlow del
+    // ViewModel e comunica con esso tramite le funzioni esposte.
+    // Non viene inserita qui nessuna logica di repository/database.
+    //
     val utente by viewModel.utente.collectAsState()
     val caricamento by viewModel.caricamento.collectAsState()
     val salvataggio by viewModel.salvataggio.collectAsState()
     val messaggio by viewModel.messaggio.collectAsState()
+
+
+    // =========================================================
+    // STATO LOCALE DEI CAMPI MODIFICABILI
+    // =========================================================
 
     var nome by rememberSaveable {
         mutableStateOf("")
@@ -71,14 +79,16 @@ fun AreaPersonaleScreen(
         mutableStateOf("")
     }
 
-    /*
-     * Quando il ViewModel riceve i dati da Firebase,
-     * aggiorniamo i campi della schermata.
-     */
+
+    // =========================================================
+    // SINCRONIZZAZIONE CON IL VIEWMODEL
+    // =========================================================
+    //
+    // Quando il ViewModel termina il caricamento dell'utente,
+    // i valori ricevuti vengono mostrati nei campi della UI.
+    //
     LaunchedEffect(utente) {
-
         utente?.let {
-
             nome = it.nome
             cognome = it.cognome
             dataNascita = it.dataNascita
@@ -88,24 +98,18 @@ fun AreaPersonaleScreen(
     }
 
 
-    // =================================================
+    // =========================================================
     // CARICAMENTO
-    // =================================================
+    // =========================================================
 
     if (caricamento) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-
-            horizontalAlignment =
-                Alignment.CenterHorizontally,
-
-            verticalArrangement =
-                Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
             CircularProgressIndicator()
 
             Spacer(
@@ -113,7 +117,8 @@ fun AreaPersonaleScreen(
             )
 
             Text(
-                text = "Caricamento dati personali..."
+                text = "Caricamento dati personali...",
+                style = MaterialTheme.typography.bodyLarge
             )
         }
 
@@ -121,26 +126,21 @@ fun AreaPersonaleScreen(
     }
 
 
-    // =================================================
-    // ERRORE CARICAMENTO
-    // =================================================
+    // =========================================================
+    // ERRORE CARICAMENTO UTENTE
+    // =========================================================
 
     if (utente == null) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-
-            horizontalAlignment =
-                Alignment.CenterHorizontally,
-
-            verticalArrangement =
-                Arrangement.Center
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-
             Text(
-                text = "Impossibile visualizzare i dati personali."
+                text = "Impossibile visualizzare i dati personali.",
+                style = MaterialTheme.typography.bodyLarge
             )
 
             Spacer(
@@ -152,7 +152,6 @@ fun AreaPersonaleScreen(
                     viewModel.caricaUtente()
                 }
             ) {
-
                 Text(
                     text = "Riprova"
                 )
@@ -163,35 +162,24 @@ fun AreaPersonaleScreen(
     }
 
 
-    // =================================================
+    // =========================================================
     // AREA PERSONALE
-    // =================================================
+    // =========================================================
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(
-                rememberScrollState()
-            )
-            .padding(20.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 20.dp)
     ) {
 
-        // ---------------------------------------------
+        // -----------------------------------------------------
         // TITOLO
-        // ---------------------------------------------
+        // -----------------------------------------------------
 
-        Text(
-            text = "Area personale",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Text(
-            text = "Visualizza e modifica i tuoi dati personali."
+        PatientScreenTitle(
+            title = "Area personale",
+            subtitle = "Visualizza e modifica i tuoi dati personali."
         )
 
         Spacer(
@@ -199,245 +187,212 @@ fun AreaPersonaleScreen(
         )
 
 
-        // =================================================
-        // DATI NON MODIFICABILI
-        // =================================================
+        // =====================================================
+        // DATI ACCOUNT
+        // =====================================================
+        //
+        // Questi dati sono solamente informativi e quindi
+        // rimangono in sola lettura.
+        //
 
-        Text(
-            text = "Dati account",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+        PatientSectionTitle(
+            title = "Dati account"
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(10.dp)
         )
 
+        PatientCard {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
 
-        // ---------------------------------------------
-        // CODICE FISCALE
-        // ---------------------------------------------
+                // Codice fiscale
+                OutlinedTextField(
+                    value = utente!!.codiceFiscale,
+                    onValueChange = {},
+                    label = {
+                        Text("Codice fiscale")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    singleLine = true
+                )
 
-        OutlinedTextField(
-            value = utente!!.codiceFiscale,
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
-            onValueChange = {},
+                // Username
+                OutlinedTextField(
+                    value = utente!!.username,
+                    onValueChange = {},
+                    label = {
+                        Text("Username")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    singleLine = true
+                )
+            }
+        }
 
-            label = {
-                Text("Codice fiscale")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            readOnly = true,
-
-            singleLine = true
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // ---------------------------------------------
-        // USERNAME
-        // ---------------------------------------------
-
-        OutlinedTextField(
-            value = utente!!.username,
-
-            onValueChange = {},
-
-            label = {
-                Text("Username")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            readOnly = true,
-
-            singleLine = true
-        )
 
         Spacer(
             modifier = Modifier.height(24.dp)
         )
 
 
-        // =================================================
+        // =====================================================
         // DATI PERSONALI
-        // =================================================
+        // =====================================================
 
-        Text(
-            text = "Dati personali",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+        PatientSectionTitle(
+            title = "Dati personali"
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(10.dp)
         )
 
+        PatientCard {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
 
-        // ---------------------------------------------
-        // NOME
-        // ---------------------------------------------
+                // -------------------------------------------------
+                // NOME
+                // -------------------------------------------------
 
-        OutlinedTextField(
-            value = nome,
+                OutlinedTextField(
+                    value = nome,
+                    onValueChange = {
+                        nome = it
+                        viewModel.pulisciMessaggio()
+                    },
+                    label = {
+                        Text("Nome")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-            onValueChange = {
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
-                nome = it
 
-                viewModel.pulisciMessaggio()
-            },
+                // -------------------------------------------------
+                // COGNOME
+                // -------------------------------------------------
 
-            label = {
-                Text("Nome")
-            },
+                OutlinedTextField(
+                    value = cognome,
+                    onValueChange = {
+                        cognome = it
+                        viewModel.pulisciMessaggio()
+                    },
+                    label = {
+                        Text("Cognome")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
 
-            modifier = Modifier.fillMaxWidth(),
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
 
-            singleLine = true
-        )
+
+                // -------------------------------------------------
+                // DATA DI NASCITA
+                // -------------------------------------------------
+
+                OutlinedTextField(
+                    value = dataNascita,
+                    onValueChange = {
+                        dataNascita = it
+                        viewModel.pulisciMessaggio()
+                    },
+                    label = {
+                        Text("Data di nascita")
+                    },
+                    placeholder = {
+                        Text("gg/mm/aaaa")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+                // -------------------------------------------------
+                // EMAIL
+                // -------------------------------------------------
+
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = {
+                        email = it
+                        viewModel.pulisciMessaggio()
+                    },
+                    label = {
+                        Text("Email")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+
+                // -------------------------------------------------
+                // TELEFONO
+                // -------------------------------------------------
+
+                OutlinedTextField(
+                    value = telefono,
+                    onValueChange = {
+                        telefono = it
+                        viewModel.pulisciMessaggio()
+                    },
+                    label = {
+                        Text("Telefono")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Phone
+                    ),
+                    singleLine = true
+                )
+            }
+        }
+
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(20.dp)
         )
 
 
-        // ---------------------------------------------
-        // COGNOME
-        // ---------------------------------------------
+        // =====================================================
+        // SALVA MODIFICHE
+        // =====================================================
+        //
+        // La chiamata al ViewModel rimane esattamente la stessa.
+        // Qui cambiamo solamente l'aspetto del pulsante.
+        //
 
-        OutlinedTextField(
-            value = cognome,
-
-            onValueChange = {
-
-                cognome = it
-
-                viewModel.pulisciMessaggio()
-            },
-
-            label = {
-                Text("Cognome")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            singleLine = true
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // ---------------------------------------------
-        // DATA DI NASCITA
-        // ---------------------------------------------
-
-        OutlinedTextField(
-            value = dataNascita,
-
-            onValueChange = {
-
-                dataNascita = it
-
-                viewModel.pulisciMessaggio()
-            },
-
-            label = {
-                Text("Data di nascita")
-            },
-
-            placeholder = {
-                Text("gg/mm/aaaa")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            singleLine = true
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // ---------------------------------------------
-        // EMAIL
-        // ---------------------------------------------
-
-        OutlinedTextField(
-            value = email,
-
-            onValueChange = {
-
-                email = it
-
-                viewModel.pulisciMessaggio()
-            },
-
-            label = {
-                Text("Email")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email
-            ),
-
-            singleLine = true
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-
-        // ---------------------------------------------
-        // TELEFONO
-        // ---------------------------------------------
-
-        OutlinedTextField(
-            value = telefono,
-
-            onValueChange = {
-
-                telefono = it
-
-                viewModel.pulisciMessaggio()
-            },
-
-            label = {
-                Text("Telefono")
-            },
-
-            modifier = Modifier.fillMaxWidth(),
-
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone
-            ),
-
-            singleLine = true
-        )
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-
-
-        // =================================================
-        // SALVA
-        // =================================================
-
-        Button(
+        OutlinedButton(
             onClick = {
-
                 viewModel.salvaModifiche(
                     nome = nome,
                     cognome = cognome,
@@ -446,56 +401,39 @@ fun AreaPersonaleScreen(
                     telefono = telefono
                 )
             },
-
             enabled = !salvataggio,
-
             modifier = Modifier.fillMaxWidth()
         ) {
-
             if (salvataggio) {
-
-                CircularProgressIndicator()
-
+                CircularProgressIndicator(
+                    modifier = Modifier.height(20.dp)
+                )
             } else {
-
                 Text(
-                    text = "Salva modifiche"
+                    text = "Salva modifiche",
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
 
 
-        // =================================================
-        // MESSAGGIO
-        // =================================================
+        // =====================================================
+        // MESSAGGIO DEL VIEWMODEL
+        // =====================================================
+        //
+        // Il messaggio continua a provenire dal ViewModel.
+        // PatientStatusMessage gli dà solamente un aspetto
+        // coerente con il resto dell'area Paziente.
+        //
 
         messaggio?.let {
-
             Spacer(
                 modifier = Modifier.height(16.dp)
             )
 
-            Text(
-                text = it
+            PatientStatusMessage(
+                message = it
             )
         }
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
-
-        Button(
-            onClick = onLogout,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Esci"
-            )
-        }
-
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
     }
 }
-
