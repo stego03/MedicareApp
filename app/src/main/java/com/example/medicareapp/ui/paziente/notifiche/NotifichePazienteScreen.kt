@@ -9,8 +9,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -20,9 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medicareapp.data.model.Notifica
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.paziente.PatientStatusMessage
+import com.example.medicareapp.ui.theme.MediCareBlue
 
 @Composable
 fun NotifichePazienteScreen(
@@ -32,28 +35,39 @@ fun NotifichePazienteScreen(
     val caricamento by viewModel.caricamento.collectAsState()
     val messaggio by viewModel.messaggio.collectAsState()
 
+    // =================================================
+    // SCHERMATA NOTIFICHE
+    // La UI legge i dati dal ViewModel e non gestisce
+    // direttamente la logica delle notifiche.
+    // =================================================
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
     ) {
-        Text(
-            text = "Notifiche",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
+        PatientScreenTitle(
+            title = "Notifiche",
+            subtitle = "Rimani aggiornato sulle informazioni importanti."
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         TextButton(
             onClick = { viewModel.caricaNotifiche() },
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text("Aggiorna")
+            Text(
+                text = "Aggiorna",
+                color = MediCareBlue,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // =================================================
+        // CARICAMENTO
+        // =================================================
         if (caricamento) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -64,25 +78,37 @@ fun NotifichePazienteScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("Caricamento notifiche...")
             }
+
             return
         }
 
+        // =================================================
+        // MESSAGGIO
+        // =================================================
         messaggio?.let {
-            Text(text = it)
+            PatientStatusMessage(message = it)
             Spacer(modifier = Modifier.height(12.dp))
         }
 
+        // =================================================
+        // ELENCO NOTIFICHE
+        // =================================================
         if (notifiche.isEmpty()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("Non hai notifiche.")
+                Text(
+                    text = "Non hai notifiche.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(
@@ -96,31 +122,38 @@ fun NotifichePazienteScreen(
     }
 }
 
+// =================================================
+// CARD DELLA NOTIFICA
+// =================================================
 @Composable
 private fun NotificaCard(
     notifica: Notifica
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    PatientCard {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
                 text = notifica.titolo,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MediCareBlue
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(text = notifica.messaggio)
+            Text(
+                text = notifica.messaggio,
+                style = MaterialTheme.typography.bodyMedium
+            )
 
             if (notifica.data.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
                     text = notifica.data,
-                    fontSize = 12.sp
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
