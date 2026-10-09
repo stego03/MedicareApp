@@ -1,3 +1,4 @@
+
 package com.example.medicareapp.data.repository
 
 import com.example.medicareapp.data.model.Notifica
@@ -7,8 +8,6 @@ class NotificaRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    // Recupera esclusivamente le notifiche destinate al paziente.
-    // Il paziente ha solo permessi di lettura nella UI.
     fun getNotificheUtente(
         idUtente: String,
         onResult: (List<Notifica>) -> Unit
@@ -30,8 +29,6 @@ class NotificaRepository {
             }
     }
 
-    // Metodo predisposto per il futuro lato Dottore.
-    // Non viene chiamato dalla parte Paziente.
     fun creaNotifica(
         notifica: Notifica,
         onResult: (Boolean, String?) -> Unit
@@ -49,6 +46,48 @@ class NotificaRepository {
             }
             .addOnFailureListener { errore ->
                 onResult(false, errore.message)
+            }
+    }
+
+    fun inviaNotifica(
+        idPazienti: List<String>,
+        titolo: String,
+        messaggio: String,
+        data: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        if (idPazienti.isEmpty()) {
+            onResult(false, "Non ci sono pazienti destinatari.")
+            return
+        }
+
+        val batch = db.batch()
+        val collezione = db.collection("notifiche")
+
+        idPazienti.distinct().forEach { idPaziente ->
+            val riferimento = collezione.document()
+
+            val notifica = Notifica(
+                idNotifica = riferimento.id,
+                idUtente = idPaziente,
+                titolo = titolo,
+                messaggio = messaggio,
+                data = data,
+                tipo = "dottore"
+            )
+
+            batch.set(riferimento, notifica)
+        }
+
+        batch.commit()
+            .addOnSuccessListener {
+                onResult(true, null)
+            }
+            .addOnFailureListener { errore ->
+                onResult(
+                    false,
+                    errore.message ?: "Errore durante l'invio."
+                )
             }
     }
 }

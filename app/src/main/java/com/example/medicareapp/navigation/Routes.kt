@@ -36,5 +36,6 @@ object Routes {
     const val HOME_DOTTORE = "homeDottore"
     const val VISITE_DOTTORE = "visiteDottore"
     const val DISPONIBILITA_DOTTORE = "disponibilitaDottore"
+    const val PAZIENTI_DOTTORE = "pazientiDottore"
     const val NOTIFICHE_DOTTORE = "notificheDottore"
 }

@@ -1,4 +1,3 @@
-
 package com.example.medicareapp.navigation
 
 import androidx.compose.foundation.layout.padding
@@ -15,7 +14,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.medicareapp.ui.dottore.home.HomeDottoreScreen
 import com.example.medicareapp.ui.dottore.indisponibilita.IndisponibilitaScreen
+import com.example.medicareapp.ui.dottore.notifiche.NotificheDottoreScreen
+import com.example.medicareapp.ui.dottore.pazienti.PazientiDottoreScreen
+import com.example.medicareapp.ui.dottore.pazienti.PazientiDottoreViewModel
 import com.example.medicareapp.ui.dottore.visite.VisiteDottoreScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun DoctorNavigation(
@@ -26,8 +29,7 @@ fun DoctorNavigation(
     val navBackStackEntry by
     navController.currentBackStackEntryAsState()
 
-    val currentRoute =
-        navBackStackEntry?.destination?.route
+    val currentRoute = navBackStackEntry?.destination?.route
 
     Scaffold(
         bottomBar = {
@@ -35,104 +37,82 @@ fun DoctorNavigation(
 
                 // HOME
                 NavigationBarItem(
-                    selected =
-                        currentRoute == Routes.HOME_DOTTORE,
+                    selected = currentRoute == Routes.HOME_DOTTORE,
                     onClick = {
-                        navController.navigate(
-                            Routes.HOME_DOTTORE
-                        ) {
+                        navController.navigate(Routes.HOME_DOTTORE) {
                             launchSingleTop = true
-                            popUpTo(
-                                Routes.HOME_DOTTORE
-                            ) {
+                            popUpTo(Routes.HOME_DOTTORE) {
                                 saveState = true
                             }
                             restoreState = true
                         }
                     },
-                    icon = {
-                        Text("🏠")
-                    },
-                    label = {
-                        Text("Home")
-                    }
+                    icon = { Text("🏠") },
+                    label = { Text("Home") }
                 )
 
                 // VISITE
                 NavigationBarItem(
-                    selected =
-                        currentRoute == Routes.VISITE_DOTTORE,
+                    selected = currentRoute == Routes.VISITE_DOTTORE,
                     onClick = {
-                        navController.navigate(
-                            Routes.VISITE_DOTTORE
-                        ) {
+                        navController.navigate(Routes.VISITE_DOTTORE) {
                             launchSingleTop = true
-                            popUpTo(
-                                Routes.HOME_DOTTORE
-                            ) {
+                            popUpTo(Routes.HOME_DOTTORE) {
                                 saveState = true
                             }
                             restoreState = true
                         }
                     },
-                    icon = {
-                        Text("📅")
-                    },
-                    label = {
-                        Text("Visite")
-                    }
+                    icon = { Text("📅") },
+                    label = { Text("Visite") }
                 )
 
                 // DISPONIBILITÀ
                 NavigationBarItem(
-                    selected =
-                        currentRoute ==
-                                Routes.DISPONIBILITA_DOTTORE,
+                    selected = currentRoute == Routes.DISPONIBILITA_DOTTORE,
                     onClick = {
-                        navController.navigate(
-                            Routes.DISPONIBILITA_DOTTORE
-                        ) {
+                        navController.navigate(Routes.DISPONIBILITA_DOTTORE) {
                             launchSingleTop = true
-                            popUpTo(
-                                Routes.HOME_DOTTORE
-                            ) {
+                            popUpTo(Routes.HOME_DOTTORE) {
                                 saveState = true
                             }
                             restoreState = true
                         }
                     },
-                    icon = {
-                        Text("🕐")
+                    icon = { Text("🕐") },
+                    label = { Text("Disponibilità") }
+                )
+
+                // PAZIENTI
+                NavigationBarItem(
+                    selected = currentRoute == Routes.PAZIENTI_DOTTORE,
+                    onClick = {
+                        navController.navigate(Routes.PAZIENTI_DOTTORE) {
+                            launchSingleTop = true
+                            popUpTo(Routes.HOME_DOTTORE) {
+                                saveState = true
+                            }
+                            restoreState = true
+                        }
                     },
-                    label = {
-                        Text("Disponibilità")
-                    }
+                    icon = { Text("👥") },
+                    label = { Text("Pazienti") }
                 )
 
                 // NOTIFICHE
                 NavigationBarItem(
-                    selected =
-                        currentRoute ==
-                                Routes.NOTIFICHE_DOTTORE,
+                    selected = currentRoute == Routes.NOTIFICHE_DOTTORE,
                     onClick = {
-                        navController.navigate(
-                            Routes.NOTIFICHE_DOTTORE
-                        ) {
+                        navController.navigate(Routes.NOTIFICHE_DOTTORE) {
                             launchSingleTop = true
-                            popUpTo(
-                                Routes.HOME_DOTTORE
-                            ) {
+                            popUpTo(Routes.HOME_DOTTORE) {
                                 saveState = true
                             }
                             restoreState = true
                         }
                     },
-                    icon = {
-                        Text("🔔")
-                    },
-                    label = {
-                        Text("Notifiche")
-                    }
+                    icon = { Text("🔔") },
+                    label = { Text("Notifiche") }
                 )
 
                 // LOGOUT
@@ -141,12 +121,8 @@ fun DoctorNavigation(
                     onClick = {
                         onLogout()
                     },
-                    icon = {
-                        Text("🚪")
-                    },
-                    label = {
-                        Text("Esci")
-                    }
+                    icon = { Text("🚪") },
+                    label = { Text("Esci") }
                 )
             }
         }
@@ -159,33 +135,32 @@ fun DoctorNavigation(
         ) {
 
             // HOME
-            composable(
-                Routes.HOME_DOTTORE
-            ) {
+            composable(Routes.HOME_DOTTORE) {
                 HomeDottoreScreen()
             }
 
             // VISITE
-            composable(
-                Routes.VISITE_DOTTORE
-            ) {
+            composable(Routes.VISITE_DOTTORE) {
                 VisiteDottoreScreen()
             }
 
             // DISPONIBILITÀ
-            composable(
-                Routes.DISPONIBILITA_DOTTORE
-            ) {
+            composable(Routes.DISPONIBILITA_DOTTORE) {
                 IndisponibilitaScreen()
             }
 
-            // NOTIFICHE
-            composable(
-                Routes.NOTIFICHE_DOTTORE
-            ) {
-                Text(
-                    text = "Notifiche Dottore"
+            // PAZIENTI
+            composable(Routes.PAZIENTI_DOTTORE) {
+                val pazientiViewModel: PazientiDottoreViewModel = viewModel()
+
+                PazientiDottoreScreen(
+                    viewModel = pazientiViewModel
                 )
+            }
+
+            // NOTIFICHE
+            composable(Routes.NOTIFICHE_DOTTORE) {
+                NotificheDottoreScreen()
             }
         }
     }
