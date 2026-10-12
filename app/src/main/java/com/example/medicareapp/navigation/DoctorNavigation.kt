@@ -19,6 +19,26 @@ import com.example.medicareapp.ui.dottore.pazienti.PazientiDottoreScreen
 import com.example.medicareapp.ui.dottore.pazienti.PazientiDottoreViewModel
 import com.example.medicareapp.ui.dottore.visite.VisiteDottoreScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
+//Import per icone BottomBar del flusso dottore
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.NoAdultContent
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.Schedule
+//Import
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.ui.unit.dp
+//Import palette (colori)
+import com.example.medicareapp.ui.theme.MediCareBlue
+import com.example.medicareapp.ui.theme.MediCareBlueLight
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun DoctorNavigation(
@@ -33,7 +53,11 @@ fun DoctorNavigation(
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                //Colore bottomBar
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp
+            ){
 
                 // HOME
                 NavigationBarItem(
@@ -47,8 +71,20 @@ fun DoctorNavigation(
                             restoreState = true
                         }
                     },
-                    icon = { Text("🏠") },
-                    label = { Text("Home") }
+                    //Icona homepage
+                    icon = {
+                        Icon(
+                        imageVector = Icons.Default.Home,
+                        contentDescription = "Home"
+                    )
+                    },
+                    label = {
+                        Text(
+                            text = "Home",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
 
                 // VISITE
@@ -63,8 +99,20 @@ fun DoctorNavigation(
                             restoreState = true
                         }
                     },
-                    icon = { Text("📅") },
-                    label = { Text("Visite") }
+                    //Icona visite
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.CalendarMonth,
+                            contentDescription = "Visite"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Visite",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
 
                 // DISPONIBILITÀ
@@ -79,8 +127,24 @@ fun DoctorNavigation(
                             restoreState = true
                         }
                     },
-                    icon = { Text("🕐") },
-                    label = { Text("Disponibilità") }
+                    //Icona disponibilità
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Schedule,
+                            contentDescription = "Disponibilità"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Disponibilità",
+                            maxLines = 1,
+                            softWrap = false,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                letterSpacing = (-0.05).sp
+                            )
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
 
                 // PAZIENTI
@@ -95,8 +159,20 @@ fun DoctorNavigation(
                             restoreState = true
                         }
                     },
-                    icon = { Text("👥") },
-                    label = { Text("Pazienti") }
+                    //Icona pazienti
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Group,
+                            contentDescription = "Pazienti"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Pazienti",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
 
                 // NOTIFICHE
@@ -111,8 +187,20 @@ fun DoctorNavigation(
                             restoreState = true
                         }
                     },
-                    icon = { Text("🔔") },
-                    label = { Text("Notifiche") }
+                    //Icona notifiche
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifiche"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Notifiche",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
 
                 // LOGOUT
@@ -121,8 +209,20 @@ fun DoctorNavigation(
                     onClick = {
                         onLogout()
                     },
-                    icon = { Text("🚪") },
-                    label = { Text("Esci") }
+                    //Icona di logout
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = "Logout"
+                        )
+                    },
+                    label = {
+                        Text(
+                            text = "Logout",
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    colors = coloriNavigationItem()
                 )
             }
         }
@@ -165,3 +265,20 @@ fun DoctorNavigation(
         }
     }
 }
+
+
+/*COLORI DELLA BOTTOM NAVIGATION
+Stessa palette utilizzata nel flusso Paziente.
+*/
+
+@Composable
+private fun coloriNavigationItem() =
+    NavigationBarItemDefaults.colors(
+        selectedIconColor = MediCareBlue,
+        selectedTextColor = MediCareBlue,
+        indicatorColor = MediCareBlueLight,
+        unselectedIconColor =
+            MaterialTheme.colorScheme.onSurfaceVariant,
+        unselectedTextColor =
+            MaterialTheme.colorScheme.onSurfaceVariant
+    )

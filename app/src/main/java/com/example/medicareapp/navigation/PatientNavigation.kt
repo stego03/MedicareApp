@@ -26,7 +26,7 @@ import com.example.medicareapp.ui.paziente.notifiche.NotifichePazienteScreen
 import com.example.medicareapp.ui.paziente.visite.VisitePazienteScreen
 import com.example.medicareapp.ui.theme.MediCareBlue
 import com.example.medicareapp.ui.theme.MediCareBlueLight
-//Import per icone BottomBar della home paziente
+//Import per icone BottomBar del flusso paziente
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Description
@@ -60,6 +60,7 @@ fun PatientNavigation(
     Scaffold(
         bottomBar = {
             NavigationBar(
+                //Colore bottomBar
                 containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 3.dp
             ) {

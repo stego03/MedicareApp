@@ -13,8 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.medicareapp.data.model.Visita
+
+//Import per abbellire card
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.paziente.PatientStatusMessage
+import com.example.medicareapp.ui.theme.MediCareBlue
+import com.example.medicareapp.ui.theme.MediCareBlueLight
+import com.example.medicareapp.ui.theme.MediCareError
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun VisiteDottoreScreen(
@@ -49,19 +58,12 @@ fun VisiteDottoreScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Le mie visite",
-            style = MaterialTheme.typography.headlineMedium
+        PatientScreenTitle(
+            title = "Le mie visite",
+            subtitle = "Consulta e gestisci gli appuntamenti dei tuoi pazienti",
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "Consulta gli appuntamenti dei tuoi pazienti.",
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         when {
             caricamento -> {
@@ -203,7 +205,7 @@ private fun VisitaDottoreCard(
     onCancella: () -> Unit
 ) {
     val stato = visita.stato.trim().lowercase()
-
+    //Stato effettivamente visualizzato su schermata visite
     val statoVisualizzato = when (stato) {
         "prenotato" -> "Prenotata"
         "effettuato" -> "Effettuata"
@@ -211,64 +213,105 @@ private fun VisitaDottoreCard(
         else -> visita.stato.ifBlank { "Non specificato" }
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
+    PatientCard {
+
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
+
+            // Data e ora sono le informazioni principali -> mostrate nella parte alta della card
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Column {
+
+                    Text(
+                        text = visita.data.ifBlank {
+                            "Data non disponibile"
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(4.dp)
+                    )
+
+                    Text(
+                        text = visita.ora.ifBlank {
+                            "Ora non disponibile"
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MediCareBlue
+                    )
+                }
+                //Serve a creare un badge dello stato della visita (prenotato/cancellato)
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = when (stato){
+                        "prenotato" -> MediCareBlueLight
+                        "cancellato" -> MediCareError.copy(alpha = 0.12f)
+                        else -> MaterialTheme.colorScheme.surfaceVariant
+                    }
+                ) {
+
+                    Text(
+                        text = statoVisualizzato,
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 6.dp
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = when (stato){
+                            "prenotato" -> MediCareBlue
+                            "cancellato" -> MediCareError
+                            else -> MaterialTheme.colorScheme.surfaceVariant
+                        }
+                    )
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Text(
+                text = "Paziente",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(
+                modifier = Modifier.height(3.dp)
+            )
+
             Text(
                 text = nomePaziente,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Data")
-                Text(visita.data.ifBlank { "Non disponibile" })
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Ora")
-                Text(visita.ora.ifBlank { "Non disponibile" })
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "Stato: $statoVisualizzato",
-                style = MaterialTheme.typography.titleSmall,
-                color = when (stato) {
-                    "cancellato" -> MaterialTheme.colorScheme.error
-                    "effettuato" -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.onSurface
-                }
-            )
-
+            //Se visita è prenotata vi è un bottone per cancellare la prenotazione
             if (stato == "prenotato") {
-                Spacer(modifier = Modifier.height(12.dp))
 
-                Button(
+                Spacer(
+                    modifier = Modifier.height(14.dp)
+                )
+
+                TextButton(
                     onClick = onCancella,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Cancella visita")
+
+                    Text(
+                        text = "Cancella visita",
+                        color = MediCareError,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
