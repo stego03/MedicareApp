@@ -135,6 +135,7 @@ fun DocumentoPazienteScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(

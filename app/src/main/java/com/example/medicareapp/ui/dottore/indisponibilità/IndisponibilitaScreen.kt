@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,10 +40,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.theme.MediCareBlueLight
+import com.example.medicareapp.ui.theme.MediCareError
 import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+
+//Import per bottoni '<' '>' calendario
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @Composable
 fun IndisponibilitaScreen(
@@ -309,10 +321,9 @@ fun IndisponibilitaScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "Disponibilità",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+        PatientScreenTitle(
+            title = "Disponibilità",
+            subtitle = "Gestisci i giorni e gli orari in cui sei disponibile."
         )
 
         Spacer(Modifier.height(16.dp))
@@ -322,14 +333,17 @@ fun IndisponibilitaScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
+            IconButton(
                 onClick = {
                     val nuovoMese = meseVisualizzato.clone() as Calendar
                     nuovoMese.add(Calendar.MONTH, -1)
                     meseVisualizzato = nuovoMese
                 }
             ) {
-                Text("‹")
+                Icon(
+                    imageVector = Icons.Filled.ChevronLeft,
+                    contentDescription = "Mese precedente"
+                )
             }
 
             Text(
@@ -339,14 +353,17 @@ fun IndisponibilitaScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Button(
+            IconButton(
                 onClick = {
                     val nuovoMese = meseVisualizzato.clone() as Calendar
                     nuovoMese.add(Calendar.MONTH, 1)
                     meseVisualizzato = nuovoMese
                 }
             ) {
-                Text("›")
+                Icon(
+                    imageVector = Icons.Filled.ChevronRight,
+                    contentDescription = "Mese precedente"
+                )
             }
         }
 
@@ -371,7 +388,7 @@ fun IndisponibilitaScreen(
             columns = GridCells.Fixed(7),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(230.dp)
+                .height(250.dp)
         ) {
             items(giorniMese) { giorno ->
                 if (giorno == null) {
@@ -493,7 +510,12 @@ fun IndisponibilitaScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                /*Si distanziano un po' gli orari fra loro e anche dalla
+                bottoBar*/
+                LazyColumn(modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
                     items(count = orari.size) { indice ->
                         val ora = orari[indice]
 
@@ -520,7 +542,15 @@ fun IndisponibilitaScreen(
                                         "blocca"
                                     }
                                     mostraDialogOrario = true
+                                },
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (orarioBloccato){
+                                    MediCareError.copy(alpha = 0.08f)
+                                } else{
+                                    MediCareBlueLight
                                 }
+                            )
+
                         ) {
                             Row(
                                 modifier = Modifier

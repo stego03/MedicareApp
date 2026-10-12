@@ -199,6 +199,15 @@ private fun VisitaCard(
     nomeDottore: String,
     onCancella: () -> Unit
 ) {
+    val stato = visita.stato.trim().lowercase()
+    //Stato effettivamente visualizzato su schermata visite
+    val statoVisualizzato = when (stato) {
+        "prenotato" -> "Prenotata"
+        "effettuato" -> "Effettuata"
+        "cancellato" -> "Cancellata"
+        else -> visita.stato.ifBlank { "Non specificato" }
+    }
+
     PatientCard {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -228,24 +237,24 @@ private fun VisitaCard(
 
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = if (visita.stato == "prenotato") {
-                        MediCareBlueLight
-                    } else {
-                        MaterialTheme.colorScheme.surfaceVariant
+                    color = when (stato){
+                        "prenotato" -> MediCareBlueLight
+                        "cancellato" -> MediCareError.copy(alpha = 0.12f)
+                        else -> MaterialTheme.colorScheme.surfaceVariant
                     }
                 ) {
                     Text(
-                        text = visita.stato.replaceFirstChar { it.uppercase() },
+                        text = statoVisualizzato,
                         modifier = Modifier.padding(
                             horizontal = 10.dp,
                             vertical = 6.dp
                         ),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = if (visita.stato == "prenotato") {
-                            MediCareBlue
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = when (stato){
+                            "prenotato" -> MediCareBlue
+                            "cancellato" -> MediCareError
+                            else -> MaterialTheme.colorScheme.surfaceVariant
                         }
                     )
                 }
@@ -267,7 +276,7 @@ private fun VisitaCard(
                 fontWeight = FontWeight.Medium
             )
 
-            if (visita.stato == "prenotato") {
+            if (stato == "prenotato") {
                 Spacer(modifier = Modifier.height(14.dp))
 
                 TextButton(
