@@ -9,8 +9,10 @@ import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,8 +48,14 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.example.medicareapp.data.model.Documento
 import com.example.medicareapp.data.model.Utente
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
 import java.io.File
 import java.io.IOException
+//Ulteriori import per migliorare la UI
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.theme.MediCareBlue
 
 @Composable
 fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
@@ -184,7 +192,7 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                     fontWeight = FontWeight.SemiBold
                 )
 
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 messaggioOperazione?.let { testo ->
                     Text(
@@ -206,6 +214,8 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                     )
                 } else {
                     LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(bottom = 15.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(
@@ -221,20 +231,11 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                     }
                 }
             } ?: run {
-                Text(
-                    text = "Pazienti",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                PatientScreenTitle(
+                    title = "Pazienti",
+                    subtitle = "Seleziona un paziente per visualizzare i suoi documenti."
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Seleziona un paziente per visualizzare i suoi documenti.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(15.dp))
 
                 if (caricamento) {
                     CircularProgressIndicator(
@@ -247,6 +248,8 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                     )
                 } else {
                     LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(bottom = 15.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         items(
@@ -264,8 +267,8 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                     }
                 }
             }
-        }
-    }
+        } //Fine colonna
+    } //Fine scaffold
 
     documentoImmagine?.let { documento ->
         DialogImmagineDottore(
@@ -280,37 +283,42 @@ private fun SchedaPaziente(
     paziente: Utente,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(),
-        onClick = onClick,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    PatientCard {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .clickable { onClick() }
+                .fillMaxWidth()
+        ) {
             Text(
                 text = "${paziente.cognome} ${paziente.nome}",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.SemiBold
             )
 
             if (paziente.email.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Email: ${paziente.email}")
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = "Email: ${paziente.email}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             if (paziente.telefono.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Telefono: ${paziente.telefono}")
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = "Telefono: ${paziente.telefono}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = "Visualizza documenti →",
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.labelLarge,
+                color = MediCareBlue,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
@@ -322,29 +330,39 @@ private fun SchedaDocumento(
     onApri: () -> Unit,
     onScarica: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+    PatientCard {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
             Text(
                 text = documento.nome.ifBlank { "Documento senza nome" },
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.SemiBold
             )
 
             if (documento.tipo.isNotBlank()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Tipo: ${documento.tipo}")
+                Spacer(modifier = Modifier.height(5.dp))
+                Text(
+                    text = "Tipo: ${documento.tipo}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             if (documento.data.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Data: ${documento.data}")
+                Text(
+                    text = "Data: ${documento.data}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
 
             if (documento.descrizione.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("Descrizione: ${documento.descrizione}")
+                Text(
+                    text = "Descrizione: ${documento.descrizione}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))

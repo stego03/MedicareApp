@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,6 +27,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.medicareapp.ui.paziente.PatientCard
+import com.example.medicareapp.ui.paziente.PatientScreenTitle
+import com.example.medicareapp.ui.paziente.PatientSectionTitle
+import com.example.medicareapp.ui.paziente.PatientStatusMessage
+import com.example.medicareapp.ui.theme.MediCareBlue
+//Import per dropdown menu
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun NotificheDottoreScreen(
@@ -59,32 +71,48 @@ fun NotificheDottoreScreen(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "Invia una notifica"
+        PatientScreenTitle(
+            title = "Invia una notifica",
+            subtitle = "Seleziona pazienti a cui inviare il messaggio"
         )
 
-        Text(
-            text = "Scegli a chi inviare il messaggio."
-        )
+        Spacer(modifier = Modifier.height(4.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        PatientCard {
             Column(
                 modifier = Modifier.padding(12.dp)
             ) {
-                Text("Destinatario")
+                PatientSectionTitle(title = "Destinatario")
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                HorizontalDivider(
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+
+                //Spacer(modifier = Modifier.height(5.dp))
 
                 TextButton(
                     onClick = { menuAperto = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(testoDestinatario)
+                    Text(
+                        text = testoDestinatario,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Seleziona destinatario",
+                        tint = MediCareBlue
+                    )
                 }
 
                 DropdownMenu(
                     expanded = menuAperto,
-                    onDismissRequest = { menuAperto = false }
+                    onDismissRequest = { menuAperto = false },
+                    shape = RoundedCornerShape(12.dp),
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     DropdownMenuItem(
                         text = {
@@ -111,7 +139,7 @@ fun NotificheDottoreScreen(
                     }
                 }
             }
-        }
+        } //Fine PatientCard
 
         OutlinedTextField(
             value = titolo,
@@ -146,7 +174,11 @@ fun NotificheDottoreScreen(
         }
 
         esito?.let {
-            Text(text = it)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            PatientStatusMessage(
+                message = it
+            )
         }
     }
 }
