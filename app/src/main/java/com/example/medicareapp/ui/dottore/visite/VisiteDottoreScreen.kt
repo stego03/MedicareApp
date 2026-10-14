@@ -3,6 +3,7 @@ package com.example.medicareapp.ui.dottore.visite
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 fun VisiteDottoreScreen(
     viewModel: VisiteDottoreViewModel = viewModel()
 ) {
+    //Sono visite già filtrate (solo quelle prenotate)
     val visite by viewModel.visite.collectAsState()
     val pazienti by viewModel.pazienti.collectAsState()
     val caricamento by viewModel.caricamento.collectAsState()
@@ -97,7 +99,7 @@ fun VisiteDottoreScreen(
                             viewModel.caricaVisite()
                         }
                     ) {
-                        Text("Riprova")
+                        Text("Ritorna alle visite")
                     }
                 }
             }
@@ -138,6 +140,9 @@ fun VisiteDottoreScreen(
                                 ?: "Paziente non disponibile",
                             onCancella = {
                                 visitaDaCancellare = visita
+                            },
+                            onEffettuata = {
+                                viewModel.segnaVisitaEffettuata(visita)
                             }
                         )
                     }
@@ -202,7 +207,8 @@ fun VisiteDottoreScreen(
 private fun VisitaDottoreCard(
     visita: Visita,
     nomePaziente: String,
-    onCancella: () -> Unit
+    onCancella: () -> Unit,
+    onEffettuata: () -> Unit
 ) {
     val stato = visita.stato.trim().lowercase()
     //Stato effettivamente visualizzato su schermata visite
@@ -295,23 +301,45 @@ private fun VisitaDottoreCard(
                 fontWeight = FontWeight.Medium
             )
 
-            //Se visita è prenotata vi è un bottone per cancellare la prenotazione
+            Spacer(modifier = Modifier.height(15.dp) )
+
+            /*Se visita è prenotata ci sono due possibili azioni che può effettuare il dottore:
+              1. Segnare visita come effettuata
+              2. Cancellare visita */
             if (stato == "prenotato") {
-
-                Spacer(
-                    modifier = Modifier.height(14.dp)
-                )
-
-                TextButton(
-                    onClick = onCancella,
-                    modifier = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
+                    Button(
+                        onClick = onEffettuata,
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = androidx.compose.ui.graphics.Color(0xFFE6F5EC),
+                            contentColor = androidx.compose.ui.graphics.Color(0xFF16865B)
+                        )
+                    ) {
+                        Text(
+                            text = "Segna come fatta",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
-                    Text(
-                        text = "Cancella visita",
-                        color = MediCareError,
-                        fontWeight = FontWeight.SemiBold
-                    )
+                    Button(
+                        onClick = onCancella,
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = androidx.compose.ui.graphics.Color(0xFFFDECEC),
+                            contentColor = androidx.compose.ui.graphics.Color(0xFFC62828)
+                        )
+                    ) {
+                        Text(
+                            text = "Cancella visita",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
         }

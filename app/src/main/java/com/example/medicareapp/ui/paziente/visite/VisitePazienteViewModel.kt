@@ -46,9 +46,11 @@ class VisitePazienteViewModel : ViewModel() {
         _messaggio.value = null
 
         visitaRepository.getVisitePaziente(idPaziente) { listaVisite ->
-            _visite.value = listaVisite.sortedWith(
-                compareBy({ it.data }, { it.ora })
-            )
+            _visite.value = listaVisite
+                .filter {
+                    it.stato.trim().lowercase() == "prenotato"
+                }
+                .sortedWith(compareBy({it.data}, {it.ora}))
 
             caricaDottori(listaVisite)
             _caricamento.value = false

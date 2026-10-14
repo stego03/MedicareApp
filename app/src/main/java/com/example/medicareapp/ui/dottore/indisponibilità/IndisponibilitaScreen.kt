@@ -388,7 +388,7 @@ fun IndisponibilitaScreen(
             columns = GridCells.Fixed(7),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .height(240.dp)
         ) {
             items(giorniMese) { giorno ->
                 if (giorno == null) {

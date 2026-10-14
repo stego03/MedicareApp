@@ -42,6 +42,12 @@ import com.example.medicareapp.ui.theme.MediCareSuccess
 import com.example.medicareapp.ui.theme.MediCareSuccessLight
 import java.time.LocalDate
 import java.time.YearMonth
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+//Import per rendere scorrevole l'elenco degli orari
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @Composable
 fun HomePazienteScreen(
@@ -66,14 +72,14 @@ fun HomePazienteScreen(
     ) {
         PatientScreenTitle(
             title = "Prenota una visita",
-            subtitle = "Scegli il medico, il giorno e l'orario che preferisci."
+            subtitle = "Scegli il dottore, il giorno e l'orario che preferisci."
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         PatientCard {
-            Column(modifier = Modifier.padding(16.dp)) {
-                PatientSectionTitle(title = "Medico")
+            Column(modifier = Modifier.padding(14.dp)) {
+                PatientSectionTitle(title = "Dottore")
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -123,7 +129,7 @@ fun HomePazienteScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
         if (dottoreSelezionato != null) {
             PatientCard {
@@ -159,13 +165,16 @@ fun HomePazienteScreen(
                     )
                 } else {
                     Column(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                            .verticalScroll(rememberScrollState())
                     ) {
                         orariDisponibili.forEach { ora ->
                             Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
+                                    .padding(vertical = 5.dp)
                                     .clickable(
                                         enabled = !prenotazioneInCorso
                                     ) {
@@ -331,7 +340,7 @@ fun CalendarioPaziente(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(30.dp),
+                            .height(25.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -343,52 +352,62 @@ fun CalendarioPaziente(
                 }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         val totaleCelle = offset + numeroGiorni
         val numeroRighe = (totaleCelle + 6) / 7
 
-        for (riga in 0 until numeroRighe) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                for (colonna in 0..6) {
-                    val indice = riga * 7 + colonna
+        // Celle vuote iniziali + giorni del mese.
+        // L'altezza della griglia resta sempre fissa.
+        val celleCalendario: List<Int?> =
+            List(numeroRighe * 7) { indice ->
+                if (indice < offset || indice >= totaleCelle) {
+                    null
+                } else {
+                    indice - offset + 1
+                }
+            }
 
-                    if (indice < offset || indice >= totaleCelle) {
-                        Spacer(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp)
-                        )
-                    } else {
-                        val giorno = indice - offset + 1
-                        val data = mese.atDay(giorno)
-                        val dataString = data.toString()
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            userScrollEnabled = false,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(190.dp)
+        ) {
+            items(celleCalendario) { giorno ->
+                if (giorno == null) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                } else {
+                    val data = mese.atDay(giorno)
+                    val dataString = data.toString()
 
-                        val giornoBloccato = indisponibilita.any {
-                            it.data == dataString && it.tuttoGiorno
-                        }
-
-                        val passato = data.isBefore(oggi)
-                        val disponibile = !passato && !giornoBloccato
-                        val selezionato = giornoSelezionato == dataString
-
-                        GiornoCalendario(
-                            modifier = Modifier.weight(1f),
-                            giorno = giorno,
-                            disponibile = disponibile,
-                            selezionato = selezionato,
-                            onClick = {
-                                if (disponibile) {
-                                    onSelezionaGiorno(dataString)
-                                }
-                            }
-                        )
+                    val giornoBloccato = indisponibilita.any {
+                        it.data == dataString && it.tuttoGiorno
                     }
+
+                    val disponibile =
+                        !data.isBefore(oggi) && !giornoBloccato
+
+                    GiornoCalendario(
+                        modifier = Modifier,
+                        giorno = giorno,
+                        disponibile = disponibile,
+                        selezionato = giornoSelezionato == dataString,
+                        onClick = {
+                            if (disponibile) {
+                                onSelezionaGiorno(dataString)
+                            }
+                        }
+                    )
                 }
             }
         }
     }
-}
+} //Fine calendario
 
 @Composable
 fun GiornoCalendario(
@@ -412,8 +431,8 @@ fun GiornoCalendario(
 
     Box(
         modifier = modifier
-            .height(50.dp)
-            .padding(4.dp)
+            .height(32.dp)
+            .padding(3.dp)
             .background(
                 color = coloreSfondo,
                 shape = RoundedCornerShape(10.dp)

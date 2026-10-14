@@ -44,18 +44,14 @@ import androidx.compose.material3.MaterialTheme
 fun VisitePazienteScreen(
     viewModel: VisitePazienteViewModel = viewModel()
 ) {
+    //Sono visite già filtrate (solo quelle prenotate)
+    val visite by viewModel.visite.collectAsState()
 
-    val visite by
-    viewModel.visite.collectAsState()
+    val caricamento by viewModel.caricamento.collectAsState()
 
-    val caricamento by
-    viewModel.caricamento.collectAsState()
+    val messaggio by viewModel.messaggio.collectAsState()
 
-    val messaggio by
-    viewModel.messaggio.collectAsState()
-
-    val dottori by
-    viewModel.dottori.collectAsState()
+    val dottori by viewModel.dottori.collectAsState()
 
 
     var visitaDaCancellare by
