@@ -119,4 +119,23 @@ class VisitaRepository {
                 onResult(false, errore.message)
             }
     }
+
+
+    /*Segna una visita come effettuata su Firestore.
+    Funzione utilizzata per cambiare stato visita da prenotato ad effettuato.*/
+    fun segnaVisitaEffettuata(
+        idVisita: String,
+        onResult: (Boolean, String?) -> Unit
+    ) {
+        db.collection("visite")
+            .document(idVisita)
+            .update("stato", "effettuato")
+            .addOnSuccessListener {
+                onResult(true, null)
+            }
+            .addOnFailureListener { errore ->
+                onResult(false, errore.message)
+            }
+    }
+
 }

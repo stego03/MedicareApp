@@ -51,9 +51,11 @@ class VisiteDottoreViewModel : ViewModel() {
         _messaggio.value = null
 
         visitaRepository.getVisiteDottore(idDottore) { listaVisite ->
-            _visite.value = listaVisite.sortedWith(
-                compareBy({ it.data }, { it.ora })
-            )
+            _visite.value = listaVisite
+                .filter {
+                    it.stato.trim().lowercase() == "prenotato"
+                }
+                .sortedWith(compareBy({it.data }, {it.ora}))
 
             caricaPazienti(listaVisite)
         }
@@ -196,6 +198,38 @@ class VisiteDottoreViewModel : ViewModel() {
             }
         }
     }
+
+
+    // Segna una visita prenotata come effettuata (cambio di stato)
+    fun segnaVisitaEffettuata(visita: Visita) {
+        if (visita.stato.trim().lowercase() != "prenotato") {
+            _messaggio.value = "È possibile completare solo le visite prenotate."
+            return
+        }
+
+        val idDottore = authRepository.utenteCorrente()
+        if (idDottore == null || idDottore != visita.idDottore) {
+            _messaggio.value = "Non sei autorizzato a modificare questa visita."
+            return
+        }
+
+        _caricamento.value = true
+        _messaggio.value = null
+
+        visitaRepository.segnaVisitaEffettuata(visita.idVisita) { successo, errore ->
+            _caricamento.value = false
+
+            if (successo) {
+                _visite.value = _visite.value.filter {
+                    it.idVisita != visita.idVisita
+                }
+                _messaggio.value = "Visita segnata come effettuata."
+            } else {
+                _messaggio.value = errore ?: "Errore durante l'aggiornamento della visita."
+            }
+        }
+    }
+
 
     fun pulisciMessaggio() {
         _messaggio.value = null
