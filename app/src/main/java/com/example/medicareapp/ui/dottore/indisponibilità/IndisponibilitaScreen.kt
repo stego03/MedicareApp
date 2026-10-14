@@ -18,7 +18,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -47,6 +49,7 @@ import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+//import androidx.compose.foundation.lazy.item
 
 //Import per bottoni '<' '>' calendario
 import androidx.compose.material.icons.Icons
@@ -315,284 +318,300 @@ fun IndisponibilitaScreen(
             }
         )
     }
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        PatientScreenTitle(
-            title = "Disponibilità",
-            subtitle = "Gestisci i giorni e gli orari in cui sei disponibile."
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = {
-                    val nuovoMese = meseVisualizzato.clone() as Calendar
-                    nuovoMese.add(Calendar.MONTH, -1)
-                    meseVisualizzato = nuovoMese
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ChevronLeft,
-                    contentDescription = "Mese precedente"
-                )
-            }
-
-            Text(
-                text = formatoMese.format(meseVisualizzato.time)
-                    .replaceFirstChar { it.uppercase() },
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+        // Titolo della schermata
+        item {
+            PatientScreenTitle(
+                title = "Disponibilità",
+                subtitle = "Gestisci i giorni e gli orari in cui sei disponibile."
             )
+        }
 
-            IconButton(
-                onClick = {
-                    val nuovoMese = meseVisualizzato.clone() as Calendar
-                    nuovoMese.add(Calendar.MONTH, 1)
-                    meseVisualizzato = nuovoMese
-                }
+        item {
+            Spacer(Modifier.height(12.dp))
+        }
+
+        // Intestazione del calendario e cambio mese
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Filled.ChevronRight,
-                    contentDescription = "Mese precedente"
-                )
-            }
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(modifier = Modifier.fillMaxWidth()) {
-            listOf("L", "M", "M", "G", "V", "S", "D").forEach { giorno ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(2.dp),
-                    contentAlignment = Alignment.Center
+                IconButton(
+                    onClick = {
+                        val nuovoMese = meseVisualizzato.clone() as Calendar
+                        nuovoMese.add(Calendar.MONTH, -1)
+                        meseVisualizzato = nuovoMese
+                    }
                 ) {
-                    Text(giorno, fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Filled.ChevronLeft,
+                        contentDescription = "Mese precedente"
+                    )
+                }
+
+                Text(
+                    text = formatoMese.format(meseVisualizzato.time)
+                        .replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                IconButton(
+                    onClick = {
+                        val nuovoMese = meseVisualizzato.clone() as Calendar
+                        nuovoMese.add(Calendar.MONTH, 1)
+                        meseVisualizzato = nuovoMese
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ChevronRight,
+                        contentDescription = "Mese successivo"
+                    )
                 }
             }
         }
 
-        Spacer(Modifier.height(4.dp))
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(7),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp)
-        ) {
-            items(giorniMese) { giorno ->
-                if (giorno == null) {
-                    Box(Modifier.size(48.dp))
-                } else {
-                    val calendarioGiorno =
-                        meseVisualizzato.clone() as Calendar
-
-                    calendarioGiorno.set(Calendar.DAY_OF_MONTH, giorno)
-
-                    val dataGiorno = formattaData(calendarioGiorno)
-                    val selezionato = dataGiorno == dataSelezionata
-                    val oggi = dataGiorno == formattaData(Calendar.getInstance())
-                    val passato = giornoPassato(calendarioGiorno)
-
+        // Giorni della settimana
+        item {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                listOf("L", "M", "M", "G", "V", "S", "D").forEach { giorno ->
                     Box(
                         modifier = Modifier
-                            .padding(2.dp)
-                            .size(44.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                when {
-                                    selezionato ->
-                                        MaterialTheme.colorScheme.primary
-                                    passato ->
-                                        MaterialTheme.colorScheme.surface
-                                    else ->
-                                        MaterialTheme.colorScheme.surfaceVariant
-                                }
-                            )
-                            .clickable(enabled = !passato) {
-                                giornoSelezionato = calendarioGiorno
-                            },
+                            .weight(1f)
+                            .padding(2.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = giorno.toString(),
-                            color = when {
-                                selezionato ->
-                                    MaterialTheme.colorScheme.onPrimary
-                                passato ->
-                                    MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = 0.35f
-                                    )
-                                else ->
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            fontWeight = if (oggi) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            }
-                        )
+                        Text(giorno, fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
 
-        Spacer(Modifier.height(12.dp))
+        // Calendario con altezza limitata
+        item {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(7),
+                userScrollEnabled = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+            ) {
+                items(giorniMese) { giorno ->
+                    if (giorno == null) {
+                        Box(Modifier.size(48.dp))
+                    } else {
+                        val calendarioGiorno =
+                            meseVisualizzato.clone() as Calendar
 
-        Text(
-            text = "Giorno selezionato",
-            style = MaterialTheme.typography.titleMedium
-        )
+                        calendarioGiorno.set(Calendar.DAY_OF_MONTH, giorno)
 
-        Spacer(Modifier.height(4.dp))
+                        val dataGiorno = formattaData(calendarioGiorno)
+                        val selezionato = dataGiorno == dataSelezionata
+                        val oggi =
+                            dataGiorno == formattaData(Calendar.getInstance())
+                        val passato = giornoPassato(calendarioGiorno)
 
-        Text(
-            text = dataSelezionata,
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            enabled = idDottore != null && !isLoading && !dataPassata,
-            onClick = {
-                if (idDottore == null || dataPassata) return@Button
-
-                azioneGiornata = if (giornataBloccata) {
-                    "sblocca"
-                } else {
-                    "blocca"
-                }
-
-                mostraDialogGiornata = true
-            }
-        ) {
-            Text(
-                if (giornataBloccata) {
-                    "Rendi disponibile tutta la giornata"
-                } else {
-                    "Blocca tutta la giornata"
-                }
-            )
-        }
-
-        Spacer(Modifier.height(12.dp))
-
-        Text(
-            text = "Orari",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                /*Si distanziano un po' gli orari fra loro e anche dalla
-                bottoBar*/
-                LazyColumn(modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(5.dp)
-                ) {
-                    items(count = orari.size) { indice ->
-                        val ora = orari[indice]
-
-                        val orarioBloccato = giornataBloccata ||
-                                indisponibilita.any {
-                                    it.data == dataSelezionata &&
-                                            it.ora == ora &&
-                                            !it.tuttoGiorno
-                                }
-
-                        Card(
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clickable(
-                                    enabled = idDottore != null &&
-                                            !giornataBloccata &&
-                                            !dataPassata
-                                ) {
-                                    oraSelezionata = ora
-                                    azioneOrario = if (orarioBloccato) {
-                                        "sblocca"
-                                    } else {
-                                        "blocca"
+                                .padding(2.dp)
+                                .size(44.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    when {
+                                        selezionato ->
+                                            MaterialTheme.colorScheme.primary
+
+                                        passato ->
+                                            MaterialTheme.colorScheme.surface
+
+                                        else ->
+                                            MaterialTheme.colorScheme.surfaceVariant
                                     }
-                                    mostraDialogOrario = true
+                                )
+                                .clickable(enabled = !passato) {
+                                    giornoSelezionato = calendarioGiorno
                                 },
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (orarioBloccato){
-                                    MediCareError.copy(alpha = 0.08f)
-                                } else{
-                                    MediCareBlueLight
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = giorno.toString(),
+                                color = when {
+                                    selezionato ->
+                                        MaterialTheme.colorScheme.onPrimary
+
+                                    passato ->
+                                        MaterialTheme.colorScheme.onSurface
+                                            .copy(alpha = 0.35f)
+
+                                    else ->
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                fontWeight = if (oggi) {
+                                    FontWeight.Bold
+                                } else {
+                                    FontWeight.Normal
                                 }
                             )
-
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    "$ora - ${calcolaOraFine(ora)}",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-
-                                Text(
-                                    text = if (orarioBloccato) {
-                                        "NON DISPONIBILE"
-                                    } else {
-                                        "DISPONIBILE"
-                                    },
-                                    color = if (orarioBloccato) {
-                                        MaterialTheme.colorScheme.error
-                                    } else {
-                                        MaterialTheme.colorScheme.primary
-                                    },
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
                         }
                     }
                 }
             }
         }
 
-        if (errore != null) {
+        // Data selezionata
+        item {
             Spacer(Modifier.height(8.dp))
+
             Text(
-                text = errore ?: "",
-                color = MaterialTheme.colorScheme.error
+                text = "Giorno selezionato",
+                style = MaterialTheme.typography.titleMedium
             )
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                text = dataSelezionata,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+
+        // Pulsante per bloccare o sbloccare l'intera giornata
+        item {
+            Spacer(Modifier.height(8.dp))
+
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = idDottore != null && !isLoading && !dataPassata,
+                onClick = {
+                    if (idDottore == null || dataPassata) return@Button
+
+                    azioneGiornata = if (giornataBloccata) {
+                        "sblocca"
+                    } else {
+                        "blocca"
+                    }
+
+                    mostraDialogGiornata = true
+                }
+            ) {
+                Text(
+                    if (giornataBloccata) {
+                        "Rendi disponibile tutta la giornata"
+                    } else {
+                        "Blocca tutta la giornata"
+                    }
+                )
+            }
+        }
+
+        // Titolo degli orari
+        item {
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                text = "Orari",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        // Caricamento oppure tutti gli orari nella stessa lista principale
+        if (isLoading) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        } else {
+            items(count = orari.size) { indice ->
+                val ora = orari[indice]
+
+                val orarioBloccato = giornataBloccata ||
+                        indisponibilita.any {
+                            it.data == dataSelezionata &&
+                                    it.ora == ora &&
+                                    !it.tuttoGiorno
+                        }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(
+                            enabled = idDottore != null &&
+                                    !giornataBloccata &&
+                                    !dataPassata
+                        ) {
+                            oraSelezionata = ora
+                            azioneOrario = if (orarioBloccato) {
+                                "sblocca"
+                            } else {
+                                "blocca"
+                            }
+                            mostraDialogOrario = true
+                        },
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (orarioBloccato) {
+                            MediCareError.copy(alpha = 0.08f)
+                        } else {
+                            MediCareBlueLight
+                        }
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "$ora - ${calcolaOraFine(ora)}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+
+                        Text(
+                            text = if (orarioBloccato) {
+                                "NON DISPONIBILE"
+                            } else {
+                                "DISPONIBILE"
+                            },
+                            color = if (orarioBloccato) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+        }
+
+        // Eventuale messaggio di errore
+        if (errore != null) {
+            item {
+                Text(
+                    text = errore ?: "",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }
+
 
 private fun calcolaOraFine(ora: String): String {
     val parti = ora.split(":")

@@ -27,7 +27,9 @@ import com.example.medicareapp.data.model.Visita
 
 //Aggiunta import
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import com.example.medicareapp.ui.paziente.PatientCard
 import com.example.medicareapp.ui.paziente.PatientScreenTitle
@@ -64,6 +66,7 @@ fun VisitePazienteScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
         PatientScreenTitle(

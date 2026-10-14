@@ -69,6 +69,7 @@ fun HomePazienteScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 20.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         PatientScreenTitle(
             title = "Prenota una visita",
