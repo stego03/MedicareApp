@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -18,6 +19,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,7 +87,6 @@ fun DocumentoPazienteScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
-            //.verticalScroll(rememberScrollState())
     ) {
         PatientScreenTitle(
             title = "I miei documenti",
@@ -137,7 +138,9 @@ fun DocumentoPazienteScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -152,8 +155,12 @@ fun DocumentoPazienteScreen(
                                 "image/jpeg", "image/png" ->
                                     mostraImmagine = documento
 
-                                "application/pdf" ->
-                                    apriPdf(context, documento)
+                                "application/pdf" -> {
+                                    val risultato = apriPdf(context, documento)
+                                    if (risultato.isNotBlank()) {
+                                        Toast.makeText(context, risultato, Toast.LENGTH_LONG).show()
+                                    }
+                                }
                             }
                         },
                         onElimina = {
@@ -323,7 +330,10 @@ private fun DialogImmagine(
                 Image(
                     bitmap = bitmap.asImageBitmap(),
                     contentDescription = documento.nome,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(360.dp),
+                    contentScale = ContentScale.Fit
                 )
             } else {
                 Text("Impossibile visualizzare il documento.")
@@ -344,16 +354,25 @@ private fun DialogImmagine(
 private fun apriPdf(
     context: Context,
     documento: Documento
-) {
-    try {
-        val bytes = Base64.decode(documento.contenuto, Base64.DEFAULT)
-
-        val file = File(
-            context.cacheDir,
-            documento.nome.ifBlank { "documento.pdf" }
-        ).apply {
-            writeBytes(bytes)
+): String {
+    return try {
+        if (documento.contenuto.isBlank()) {
+            return "Il documento non contiene dati da aprire."
         }
+
+        val bytes = Base64.decode(documento.contenuto, Base64.DEFAULT)
+        val nomeOriginale = documento.nome
+            .trim()
+            .ifBlank { "documento" }
+            .replace("/", "_")
+            .replace("\\\\", "_")
+        val nomeFile = if (nomeOriginale.endsWith(".pdf", ignoreCase = true)) {
+            nomeOriginale
+        } else {
+            "$nomeOriginale.pdf"
+        }
+        val file = File(context.cacheDir, nomeFile)
+        file.writeBytes(bytes)
 
         val uri = FileProvider.getUriForFile(
             context,
@@ -361,13 +380,18 @@ private fun apriPdf(
             file
         )
 
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, "application/pdf")
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-        )
-    } catch (e: Exception) {
-        e.printStackTrace()
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/pdf")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        if (intent.resolveActivity(context.packageManager) == null) {
+            "Non è installata un'app compatibile per aprire i PDF."
+        } else {
+            context.startActivity(intent)
+            ""
+        }
+    } catch (_: Exception) {
+        "Impossibile aprire il PDF. Verifica che sia valido e riprova."
     }
 }
