@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -53,6 +54,7 @@ import java.io.File
 import java.io.IOException
 //Ulteriori import per migliorare la UI
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import com.example.medicareapp.ui.paziente.PatientCard
 import com.example.medicareapp.ui.paziente.PatientScreenTitle
 import com.example.medicareapp.ui.theme.MediCareBlue
@@ -157,6 +159,7 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             pazienteSelezionato?.let { paziente ->
                 TextButton(

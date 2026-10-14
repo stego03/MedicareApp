@@ -143,12 +143,12 @@ fun PatientNavigation(
                     icon = {
                         Icon(
                             imageVector = Icons.Default.Description,
-                            contentDescription = "Documenti"
+                            contentDescription = "File"
                         )
                     },
                     label = {
                         Text(
-                            text = "Documenti",
+                            text = "File",
                             style = MaterialTheme.typography.labelSmall
                         )
                     },
