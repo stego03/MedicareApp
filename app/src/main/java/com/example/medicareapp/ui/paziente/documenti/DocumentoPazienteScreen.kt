@@ -85,7 +85,7 @@ fun DocumentoPazienteScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(20.dp)
-            .verticalScroll(rememberScrollState())
+            //.verticalScroll(rememberScrollState())
     ) {
         PatientScreenTitle(
             title = "I miei documenti",

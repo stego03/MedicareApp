@@ -159,7 +159,7 @@ fun PazientiDottoreScreen(viewModel: PazientiDottoreViewModel) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
+                //.verticalScroll(rememberScrollState())
         ) {
             pazienteSelezionato?.let { paziente ->
                 TextButton(
