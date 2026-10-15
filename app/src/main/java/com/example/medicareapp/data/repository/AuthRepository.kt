@@ -9,6 +9,38 @@ class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
+
+    private fun traduciErrore(errore: Exception): String {
+        val codice = (errore as? com.google.firebase.auth.FirebaseAuthException)
+            ?.errorCode
+
+        return when (codice) {
+            "ERROR_INVALID_EMAIL" ->
+                "L'indirizzo email non è valido."
+
+            "ERROR_INVALID_CREDENTIAL",
+            "ERROR_WRONG_PASSWORD",
+            "ERROR_USER_NOT_FOUND" ->
+                "Username o password non corretti."
+
+            "ERROR_EMAIL_ALREADY_IN_USE" ->
+                "Questo username è già registrato."
+
+            "ERROR_WEAK_PASSWORD" ->
+                "La password è troppo debole. Scegline una più sicura."
+
+            "ERROR_TOO_MANY_REQUESTS" ->
+                "Troppi tentativi. Riprova più tardi."
+
+            "ERROR_NETWORK_REQUEST_FAILED" ->
+                "Connessione assente. Controlla la rete e riprova."
+
+            else ->
+                "Si è verificato un errore. Riprova più tardi."
+        }
+    }
+
+
     fun registraUtente(
         username: String,
         password: String,
@@ -53,11 +85,11 @@ class AuthRepository {
                         onResult(true, null)
                     }
                     .addOnFailureListener { errore ->
-                        onResult(false, errore.message)
+                        onResult(false, traduciErrore(errore))
                     }
             }
             .addOnFailureListener { errore ->
-                onResult(false, errore.message)
+                onResult(false, traduciErrore(errore))
             }
     }
 
@@ -74,7 +106,7 @@ class AuthRepository {
                 onResult(true, null)
             }
             .addOnFailureListener { errore ->
-                onResult(false, errore.message)
+                onResult(false, traduciErrore(errore))
             }
     }
 
