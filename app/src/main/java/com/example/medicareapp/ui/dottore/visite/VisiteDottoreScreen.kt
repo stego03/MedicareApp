@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -309,26 +310,39 @@ private fun VisitaDottoreCard(
             if (stato == "prenotato") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Button(
                         onClick = onEffettuata,
-                        modifier = Modifier.padding(horizontal = 12.dp),
+                        modifier = Modifier
+                            .weight(1.4f)
+                            .heightIn(min = 48.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 10.dp
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = androidx.compose.ui.graphics.Color(0xFFE6F5EC),
-                            contentColor = androidx.compose.ui.graphics.Color(0xFF16865B)
+                            containerColor = androidx.compose.ui.graphics.Color(0xFFE6F4EC),
+                            contentColor = androidx.compose.ui.graphics.Color(0xFF16865C)
                         )
-                    ) {
+                    ){
                         Text(
                             text = "Segna come fatta",
                             fontWeight = FontWeight.SemiBold
                         )
                     }
 
+
                     Button(
                         onClick = onCancella,
-                        modifier = Modifier.padding(horizontal = 12.dp),
+                        modifier = Modifier
+                                .weight(1.4f)
+                            .heightIn(min = 48.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 8.dp,
+                            vertical = 10.dp
+                        ),
                         shape = RoundedCornerShape(12.dp),
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                             containerColor = androidx.compose.ui.graphics.Color(0xFFFDECEC),
