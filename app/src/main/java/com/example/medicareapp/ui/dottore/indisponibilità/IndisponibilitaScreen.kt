@@ -57,6 +57,7 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import com.example.medicareapp.ui.theme.MediCareBlue
 
 @Composable
 fun IndisponibilitaScreen(
@@ -418,6 +419,9 @@ fun IndisponibilitaScreen(
                         val oggi =
                             dataGiorno == formattaData(Calendar.getInstance())
                         val passato = giornoPassato(calendarioGiorno)
+                        val fineSettimana =
+                            calendarioGiorno.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY ||
+                                    calendarioGiorno.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY
 
                         Box(
                             modifier = Modifier
@@ -429,14 +433,14 @@ fun IndisponibilitaScreen(
                                         selezionato ->
                                             MaterialTheme.colorScheme.primary
 
-                                        passato ->
-                                            MaterialTheme.colorScheme.surface
+                                        passato || fineSettimana ->
+                                            androidx.compose.ui.graphics.Color(0xFFE8EAED)
 
                                         else ->
-                                            MaterialTheme.colorScheme.surfaceVariant
+                                            MediCareBlueLight
                                     }
                                 )
-                                .clickable(enabled = !passato) {
+                                .clickable(enabled = !passato && !fineSettimana) {
                                     giornoSelezionato = calendarioGiorno
                                 },
                             contentAlignment = Alignment.Center
@@ -448,11 +452,10 @@ fun IndisponibilitaScreen(
                                         MaterialTheme.colorScheme.onPrimary
 
                                     passato ->
-                                        MaterialTheme.colorScheme.onSurface
-                                            .copy(alpha = 0.35f)
+                                        androidx.compose.ui.graphics.Color(0xFF9AA0A6)
 
                                     else ->
-                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                        MediCareBlue
                                 },
                                 fontWeight = if (oggi) {
                                     FontWeight.Bold
