@@ -4,16 +4,18 @@ package com.example.medicareapp.ui.dottore.indisponibilita
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medicareapp.data.model.Indisponibilita
+import com.example.medicareapp.data.repository.IndisponibilitaDataSource
 import com.example.medicareapp.data.repository.IndisponibilitaRepository
-import java.time.LocalDate
+import com.example.medicareapp.data.validation.IndisponibilitaValidator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class IndisponibilitaViewModel : ViewModel() {
-
-    private val repository = IndisponibilitaRepository()
+class IndisponibilitaViewModel(
+    private val repository: IndisponibilitaDataSource =
+        IndisponibilitaRepository()
+) : ViewModel() {
 
     private val _indisponibilita =
         MutableStateFlow<List<Indisponibilita>>(emptyList())
@@ -27,11 +29,7 @@ class IndisponibilitaViewModel : ViewModel() {
     val errore: StateFlow<String?> = _errore.asStateFlow()
 
     private fun dataPassata(data: String): Boolean {
-        return try {
-            LocalDate.parse(data).isBefore(LocalDate.now())
-        } catch (e: Exception) {
-            true
-        }
+        return !IndisponibilitaValidator.dataValida(data)
     }
 
     fun caricaIndisponibilita(idDottore: String) {
@@ -44,7 +42,7 @@ class IndisponibilitaViewModel : ViewModel() {
                     repository.getIndisponibilitaDottore(idDottore)
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il caricamento"
+                    e.message ?: "Errore durante il caricamento delle indisponibilità"
             } finally {
                 _isLoading.value = false
             }
@@ -66,13 +64,10 @@ class IndisponibilitaViewModel : ViewModel() {
 
             try {
                 _indisponibilita.value =
-                    repository.getIndisponibilitaGiorno(
-                        idDottore = idDottore,
-                        data = data
-                    )
+                    repository.getIndisponibilitaGiorno(idDottore, data)
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il caricamento"
+                    e.message ?: "Errore durante il caricamento delle indisponibilità"
             } finally {
                 _isLoading.value = false
             }
@@ -89,7 +84,7 @@ class IndisponibilitaViewModel : ViewModel() {
             return
         }
 
-        if (ora !in ORARI_LAVORATIVI) {
+        if (!IndisponibilitaValidator.orarioValido(ora)) {
             _errore.value = "Orario non valido"
             return
         }
@@ -99,20 +94,21 @@ class IndisponibilitaViewModel : ViewModel() {
             _errore.value = null
 
             try {
-                val successo = repository.aggiungiIndisponibilitaOraria(
-                    idDottore = idDottore,
-                    data = data,
-                    ora = ora
-                )
+                val successo =
+                    repository.aggiungiIndisponibilitaOraria(
+                        idDottore,
+                        data,
+                        ora
+                    )
 
-                if (!successo) {
-                    _errore.value = "Impossibile bloccare l'orario"
-                } else {
+                if (successo) {
                     caricaIndisponibilitaGiorno(idDottore, data)
+                } else {
+                    _errore.value = "Impossibile bloccare l'orario"
                 }
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il salvataggio"
+                    e.message ?: "Errore durante il blocco dell'orario"
             } finally {
                 _isLoading.value = false
             }
@@ -129,7 +125,7 @@ class IndisponibilitaViewModel : ViewModel() {
             return
         }
 
-        if (ora !in ORARI_LAVORATIVI) {
+        if (!IndisponibilitaValidator.orarioValido(ora)) {
             _errore.value = "Orario non valido"
             return
         }
@@ -139,21 +135,22 @@ class IndisponibilitaViewModel : ViewModel() {
             _errore.value = null
 
             try {
-                val successo = repository.rimuoviIndisponibilitaOraria(
-                    idDottore = idDottore,
-                    data = data,
-                    ora = ora
-                )
+                val successo =
+                    repository.rimuoviIndisponibilitaOraria(
+                        idDottore,
+                        data,
+                        ora
+                    )
 
-                if (!successo) {
+                if (successo) {
+                    caricaIndisponibilitaGiorno(idDottore, data)
+                } else {
                     _errore.value =
                         "Impossibile rendere disponibile l'orario"
-                } else {
-                    caricaIndisponibilitaGiorno(idDottore, data)
                 }
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il salvataggio"
+                    e.message ?: "Errore durante lo sblocco dell'orario"
             } finally {
                 _isLoading.value = false
             }
@@ -174,19 +171,20 @@ class IndisponibilitaViewModel : ViewModel() {
             _errore.value = null
 
             try {
-                val successo = repository.aggiungiIndisponibilitaGiornata(
-                    idDottore = idDottore,
-                    data = data
-                )
+                val successo =
+                    repository.aggiungiIndisponibilitaGiornata(
+                        idDottore,
+                        data
+                    )
 
-                if (!successo) {
-                    _errore.value = "Impossibile bloccare la giornata"
-                } else {
+                if (successo) {
                     caricaIndisponibilitaGiorno(idDottore, data)
+                } else {
+                    _errore.value = "Impossibile bloccare la giornata"
                 }
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il salvataggio"
+                    e.message ?: "Errore durante il blocco della giornata"
             } finally {
                 _isLoading.value = false
             }
@@ -207,39 +205,29 @@ class IndisponibilitaViewModel : ViewModel() {
             _errore.value = null
 
             try {
-                val successo = repository.rimuoviIndisponibilitaGiornata(
-                    idDottore = idDottore,
-                    data = data
-                )
+                val successo =
+                    repository.rimuoviIndisponibilitaGiornata(
+                        idDottore,
+                        data
+                    )
 
-                if (!successo) {
+                if (successo) {
+                    caricaIndisponibilitaGiorno(idDottore, data)
+                } else {
                     _errore.value =
                         "Impossibile rendere disponibile la giornata"
-                } else {
-                    caricaIndisponibilitaGiorno(idDottore, data)
                 }
             } catch (e: Exception) {
                 _errore.value =
-                    e.message ?: "Errore durante il salvataggio"
+                    e.message ?: "Errore durante lo sblocco della giornata"
             } finally {
                 _isLoading.value = false
             }
         }
     }
 
-    fun clearErrore() {
-        _errore.value = null
-    }
-
     companion object {
-        val ORARI_LAVORATIVI = listOf(
-            "08:00",
-            "09:00",
-            "10:00",
-            "11:00",
-            "15:00",
-            "16:00",
-            "17:00"
-        )
+        val ORARI_LAVORATIVI: List<String> =
+            IndisponibilitaValidator.ORARI_LAVORATIVI
     }
 }

@@ -3,11 +3,11 @@ package com.example.medicareapp.data.repository
 import com.example.medicareapp.data.model.Utente
 import com.google.firebase.firestore.FirebaseFirestore
 
-class UtenteRepository {
+class UtenteRepository : UtenteDataSource{
 
     private val db = FirebaseFirestore.getInstance()
 
-    fun getUtente(
+    override fun getUtente(
         uid: String,
         onResult: (Utente?) -> Unit
     ) {
@@ -39,7 +39,7 @@ class UtenteRepository {
             }
     }
 
-    fun getDottori(
+    override fun getDottori(
         onResult: (List<Utente>) -> Unit
     ) {
         db.collection("utenti")
