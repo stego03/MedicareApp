@@ -43,6 +43,7 @@ import com.example.medicareapp.ui.theme.MediCareSuccess
 import com.example.medicareapp.ui.theme.MediCareSuccessLight
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.DayOfWeek
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -388,8 +389,15 @@ fun CalendarioPaziente(
                         it.data == dataString && it.tuttoGiorno
                     }
 
+                    val fineSettimana =
+                        data.dayOfWeek == DayOfWeek.SATURDAY ||
+                                data.dayOfWeek == DayOfWeek.SUNDAY
+
                     val disponibile =
-                        !data.isBefore(oggi) && !giornoBloccato
+                        !data.isBefore(oggi) &&
+                                !fineSettimana &&
+                                !giornoBloccato
+
 
                     GiornoCalendario(
                         modifier = Modifier,
@@ -419,13 +427,13 @@ fun GiornoCalendario(
     val coloreSfondo = when {
         selezionato -> MediCareBlue
         disponibile -> MediCareBlueLight
-        else -> MaterialTheme.colorScheme.surfaceVariant
+        else -> androidx.compose.ui.graphics.Color(0xFFE8EAED)
     }
 
     val coloreTesto = when {
         selezionato -> MaterialTheme.colorScheme.onPrimary
         disponibile -> MediCareBlue
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        else -> androidx.compose.ui.graphics.Color(0xFF9AA0A6)
     }
 
     Box(
