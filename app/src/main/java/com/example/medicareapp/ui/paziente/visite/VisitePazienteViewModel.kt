@@ -10,12 +10,18 @@ import com.example.medicareapp.data.repository.VisitaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.example.medicareapp.data.repository.VisitaDataSource
+import com.example.medicareapp.data.repository.UtenteDataSource
+import com.example.medicareapp.data.repository.AuthDataSource
 
-class VisitePazienteViewModel : ViewModel() {
-
-    private val visitaRepository = VisitaRepository()
-    private val utenteRepository = UtenteRepository()
-    private val authRepository = AuthRepository()
+class VisitePazienteViewModel(
+    private val visitaRepository: VisitaDataSource =
+        VisitaRepository(),
+    private val utenteRepository: UtenteDataSource =
+        UtenteRepository(),
+    private val authRepository: AuthDataSource =
+        AuthRepository()
+) : ViewModel() {
 
     private val _visite = MutableStateFlow<List<Visita>>(emptyList())
     val visite: StateFlow<List<Visita>> = _visite.asStateFlow()

@@ -4,12 +4,12 @@ package com.example.medicareapp.data.repository
 import com.example.medicareapp.data.model.Visita
 import com.google.firebase.firestore.FirebaseFirestore
 
-class VisitaRepository {
+class VisitaRepository : VisitaDataSource {
 
     private val db = FirebaseFirestore.getInstance()
 
     // Crea una nuova visita
-    fun prenotaVisita(
+    override fun prenotaVisita(
         visita: Visita,
         onResult: (Boolean, String?) -> Unit
     ) {
@@ -30,7 +30,7 @@ class VisitaRepository {
     }
 
     // Recupera le visite di un paziente
-    fun getVisitePaziente(
+    override fun getVisitePaziente(
         idPaziente: String,
         onResult: (List<Visita>) -> Unit
     ) {
@@ -50,7 +50,7 @@ class VisitaRepository {
     }
 
     // Recupera le visite di un dottore
-    fun getVisiteDottore(
+    override fun getVisiteDottore(
         idDottore: String,
         onResult: (List<Visita>) -> Unit
     ) {
@@ -71,7 +71,7 @@ class VisitaRepository {
 
     // Controlla se esiste un'altra visita prenotata
     // nello stesso giorno e alla stessa ora.
-    fun verificaAltreVisitePrenotate(
+    override fun verificaAltreVisitePrenotate(
         visita: Visita,
         onResult: (Boolean, String?) -> Unit
     ) {
@@ -105,7 +105,7 @@ class VisitaRepository {
     }
 
     // Cancella una visita modificandone lo stato
-    fun cancellaVisita(
+    override fun cancellaVisita(
         idVisita: String,
         onResult: (Boolean, String?) -> Unit
     ) {
@@ -123,7 +123,7 @@ class VisitaRepository {
 
     /*Segna una visita come effettuata su Firestore.
     Funzione utilizzata per cambiare stato visita da prenotato ad effettuato.*/
-    fun segnaVisitaEffettuata(
+    override fun segnaVisitaEffettuata(
         idVisita: String,
         onResult: (Boolean, String?) -> Unit
     ) {

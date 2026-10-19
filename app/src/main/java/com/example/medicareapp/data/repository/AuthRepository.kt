@@ -4,7 +4,7 @@ import com.example.medicareapp.data.model.Utente
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-class AuthRepository {
+class AuthRepository : AuthDataSource {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -110,11 +110,11 @@ class AuthRepository {
             }
     }
 
-    fun logout() {
+    override fun logout() {
         auth.signOut()
     }
 
-    fun utenteCorrente(): String? {
+    override fun utenteCorrente(): String? {
         return auth.currentUser?.uid
     }
 }

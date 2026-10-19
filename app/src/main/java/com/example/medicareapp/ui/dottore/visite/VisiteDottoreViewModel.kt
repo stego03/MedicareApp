@@ -14,13 +14,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.medicareapp.data.repository.AuthDataSource
+import com.example.medicareapp.data.repository.NotificaDataSource
+import com.example.medicareapp.data.repository.UtenteDataSource
+import com.example.medicareapp.data.repository.VisitaDataSource
 
-class VisiteDottoreViewModel : ViewModel() {
-
-    private val visitaRepository = VisitaRepository()
-    private val notificaRepository = NotificaRepository()
-    private val utenteRepository = UtenteRepository()
-    private val authRepository = AuthRepository()
+class VisiteDottoreViewModel(
+    private val visitaRepository: VisitaDataSource = VisitaRepository(),
+    private val notificaRepository: NotificaDataSource = NotificaRepository(),
+    private val utenteRepository: UtenteDataSource = UtenteRepository(),
+    private val authRepository: AuthDataSource = AuthRepository()
+) : ViewModel() {
 
     private val _visite = MutableStateFlow<List<Visita>>(emptyList())
     val visite: StateFlow<List<Visita>> = _visite.asStateFlow()

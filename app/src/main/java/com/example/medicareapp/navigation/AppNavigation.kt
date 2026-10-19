@@ -49,20 +49,15 @@ fun AppNavigation() {
                     "Utente recuperato all'avvio: $utente"
                 )
 
-                destinazioneIniziale = when (
-                    utente?.ruolo?.trim()?.lowercase()
-                ) {
-                    "paziente" -> Routes.MAIN_PAZIENTE
-                    "dottore" -> Routes.MAIN_DOTTORE
-
-                    else -> {
-                        Log.e(
-                            "APP_NAVIGATION",
-                            "Utente non trovato o ruolo non riconosciuto"
-                        )
-                        Routes.LOGIN
-                    }
-                }
+                destinazioneIniziale =
+                    destinazionePerRuolo(utente?.ruolo)
+                        ?: run {
+                            Log.e(
+                                "APP_NAVIGATION",
+                                "Utente non trovato o ruolo non riconosciuto"
+                            )
+                            Routes.LOGIN
+                        }
             }
         }
     }
@@ -136,11 +131,11 @@ fun AppNavigation() {
                                 "Ruolo ricevuto da Firestore: '${utente.ruolo}'"
                             )
 
-                            // Controllo del ruolo.
-                            when (utente.ruolo.trim().lowercase()) {
+                            // Controlliamo il ruolo usando la funzione testata.
+                            when (destinazionePerRuolo(utente.ruolo)) {
 
                                 // PAZIENTE
-                                "paziente" -> {
+                                Routes.MAIN_PAZIENTE -> {
                                     Log.d(
                                         "APP_NAVIGATION",
                                         "Navigazione verso MAIN_PAZIENTE"
@@ -156,7 +151,7 @@ fun AppNavigation() {
                                 }
 
                                 // DOTTORE
-                                "dottore" -> {
+                                Routes.MAIN_DOTTORE -> {
                                     Log.d(
                                         "APP_NAVIGATION",
                                         "Navigazione verso MAIN_DOTTORE"

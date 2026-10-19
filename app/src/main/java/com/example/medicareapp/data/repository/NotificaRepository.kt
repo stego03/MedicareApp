@@ -4,11 +4,11 @@ package com.example.medicareapp.data.repository
 import com.example.medicareapp.data.model.Notifica
 import com.google.firebase.firestore.FirebaseFirestore
 
-class NotificaRepository {
+class NotificaRepository : NotificaDataSource{
 
     private val db = FirebaseFirestore.getInstance()
 
-    fun getNotificheUtente(
+    override fun getNotificheUtente(
         idUtente: String,
         onResult: (List<Notifica>) -> Unit
     ) {
@@ -29,7 +29,7 @@ class NotificaRepository {
             }
     }
 
-    fun creaNotifica(
+    override fun creaNotifica(
         notifica: Notifica,
         onResult: (Boolean, String?) -> Unit
     ) {
@@ -49,7 +49,7 @@ class NotificaRepository {
             }
     }
 
-    fun inviaNotifica(
+    override fun inviaNotifica(
         idPazienti: List<String>,
         titolo: String,
         messaggio: String,
