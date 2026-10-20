@@ -217,12 +217,19 @@ class IndisponibilitaRepository : IndisponibilitaDataSource  {
      * Per ogni visita crea la stessa notifica della cancellazione
      * manuale effettuata dal dottore.
      */
+
+    /**
+     * Elimina definitivamente le visite prenotate per il dottore
+     * nella data indicata ed eventualmente all'ora specificata.
+     *
+     * Per ogni visita crea la stessa notifica della cancellazione
+     * manuale effettuata dal dottore.
+     */
     private suspend fun cancellaVisitePrenotate(
         idDottore: String,
         data: String,
         ora: String? = null
     ) {
-
         val snapshot = db.collection("visite")
             .whereEqualTo("idDottore", idDottore)
             .whereEqualTo("data", data)
@@ -230,7 +237,6 @@ class IndisponibilitaRepository : IndisponibilitaDataSource  {
             .await()
 
         val visiteDaCancellare = snapshot.documents.mapNotNull { document ->
-
             val visita = document.toObject(Visita::class.java)
 
             if (
@@ -250,26 +256,17 @@ class IndisponibilitaRepository : IndisponibilitaDataSource  {
             Locale.getDefault()
         ).format(Date())
 
-        // Ogni visita richiede due operazioni:
-        // aggiornamento dello stato e creazione della notifica.
         visiteDaCancellare.chunked(250).forEach { gruppo ->
-
             val batch = db.batch()
             val collezioneNotifiche = db.collection("notifiche")
 
             gruppo.forEach { (document, visita) ->
 
-                // Aggiorna lo stato della visita.
-                batch.update(
-                    document.reference,
-                    "stato",
-                    "cancellato"
-                )
+                // Elimina definitivamente la visita.
+                batch.delete(document.reference)
 
-                // Crea la notifica con gli stessi dati
-                // utilizzati nella cancellazione manuale.
-                val riferimentoNotifica =
-                    collezioneNotifiche.document()
+                // Mantiene la notifica destinata al paziente.
+                val riferimentoNotifica = collezioneNotifiche.document()
 
                 val notifica = Notifica(
                     idNotifica = riferimentoNotifica.id,
@@ -282,10 +279,7 @@ class IndisponibilitaRepository : IndisponibilitaDataSource  {
                     tipo = "cancellazione_visita"
                 )
 
-                batch.set(
-                    riferimentoNotifica,
-                    notifica
-                )
+                batch.set(riferimentoNotifica, notifica)
             }
 
             batch.commit().await()
