@@ -219,7 +219,7 @@ class VisiteDottoreViewModel(
         _caricamento.value = true
         _messaggio.value = null
 
-        visitaRepository.segnaVisitaEffettuata(visita.idVisita) {
+        visitaRepository.cancellaVisita(visita.idVisita) {
                 successo, errore ->
 
             _caricamento.value = false
@@ -234,6 +234,21 @@ class VisiteDottoreViewModel(
                     errore ?: "Errore durante l'aggiornamento della visita."
             }
         }
+        /*visitaRepository.segnaVisitaEffettuata(visita.idVisita) {
+                successo, errore ->
+
+            _caricamento.value = false
+
+            if (successo) {
+                _visite.value = _visite.value.filter {
+                    it.idVisita != visita.idVisita
+                }
+                _messaggio.value = "Visita segnata come effettuata."
+            } else {
+                _messaggio.value =
+                    errore ?: "Errore durante l'aggiornamento della visita."
+            }
+        }*/
     }
 
     fun pulisciMessaggio() {
