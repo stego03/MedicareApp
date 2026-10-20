@@ -1,4 +1,3 @@
-
 package com.example.medicareapp.data.repository
 
 import com.example.medicareapp.data.model.Visita
@@ -99,19 +98,20 @@ class VisitaRepository : VisitaDataSource {
             .addOnFailureListener { errore ->
                 onResult(
                     false,
-                    errore.message ?: "Impossibile verificare le altre visite"
+                    errore.message
+                        ?: "Impossibile verificare le altre visite"
                 )
             }
     }
 
-    // Cancella una visita modificandone lo stato
+    // Elimina definitivamente una visita da Firestore.
     override fun cancellaVisita(
         idVisita: String,
         onResult: (Boolean, String?) -> Unit
     ) {
         db.collection("visite")
             .document(idVisita)
-            .update("stato", "cancellato")
+            .delete()
             .addOnSuccessListener {
                 onResult(true, null)
             }
@@ -120,9 +120,9 @@ class VisitaRepository : VisitaDataSource {
             }
     }
 
-
-    /*Segna una visita come effettuata su Firestore.
-    Funzione utilizzata per cambiare stato visita da prenotato ad effettuato.*/
+    // Segna una visita come effettuata su Firestore.
+    // Funzione utilizzata per cambiare stato visita
+    // da prenotato ad effettuato.
     override fun segnaVisitaEffettuata(
         idVisita: String,
         onResult: (Boolean, String?) -> Unit
@@ -137,5 +137,4 @@ class VisitaRepository : VisitaDataSource {
                 onResult(false, errore.message)
             }
     }
-
 }

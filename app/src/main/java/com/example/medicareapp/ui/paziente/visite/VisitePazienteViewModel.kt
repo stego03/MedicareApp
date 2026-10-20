@@ -1,4 +1,3 @@
-
 package com.example.medicareapp.ui.paziente.visite
 
 import androidx.lifecycle.ViewModel
@@ -7,12 +6,12 @@ import com.example.medicareapp.data.model.Visita
 import com.example.medicareapp.data.repository.AuthRepository
 import com.example.medicareapp.data.repository.UtenteRepository
 import com.example.medicareapp.data.repository.VisitaRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import com.example.medicareapp.data.repository.VisitaDataSource
 import com.example.medicareapp.data.repository.UtenteDataSource
 import com.example.medicareapp.data.repository.AuthDataSource
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class VisitePazienteViewModel(
     private val visitaRepository: VisitaDataSource =
@@ -56,7 +55,7 @@ class VisitePazienteViewModel(
                 .filter {
                     it.stato.trim().lowercase() == "prenotato"
                 }
-                .sortedWith(compareBy({it.data}, {it.ora}))
+                .sortedWith(compareBy({ it.data }, { it.ora }))
 
             caricaDottori(listaVisite)
             _caricamento.value = false
@@ -74,24 +73,25 @@ class VisitePazienteViewModel(
     }
 
     fun cancellaVisita(visita: Visita) {
-        if (visita.stato != "prenotato") {
-            _messaggio.value = "Questa visita non può essere cancellata"
+        if (visita.stato.trim().lowercase() != "prenotato") {
+            _messaggio.value =
+                "Questa visita non può essere cancellata"
             return
         }
 
-        visitaRepository.cancellaVisita(visita.idVisita) { successo, errore ->
+        visitaRepository.cancellaVisita(visita.idVisita) {
+                successo, errore ->
+
             if (!successo) {
                 _messaggio.value =
                     errore ?: "Errore durante la cancellazione"
                 return@cancellaVisita
             }
 
-            _visite.value = _visite.value.map {
-                if (it.idVisita == visita.idVisita) {
-                    it.copy(stato = "cancellato")
-                } else {
-                    it
-                }
+            // Rimuove la visita dalla schermata:
+            // il documento è già stato eliminato da Firestore.
+            _visite.value = _visite.value.filter {
+                it.idVisita != visita.idVisita
             }
 
             _messaggio.value = "Visita cancellata con successo"

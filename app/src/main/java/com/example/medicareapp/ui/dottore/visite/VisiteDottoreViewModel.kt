@@ -8,16 +8,16 @@ import com.example.medicareapp.data.repository.AuthRepository
 import com.example.medicareapp.data.repository.NotificaRepository
 import com.example.medicareapp.data.repository.UtenteRepository
 import com.example.medicareapp.data.repository.VisitaRepository
+import com.example.medicareapp.data.repository.AuthDataSource
+import com.example.medicareapp.data.repository.NotificaDataSource
+import com.example.medicareapp.data.repository.UtenteDataSource
+import com.example.medicareapp.data.repository.VisitaDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.example.medicareapp.data.repository.AuthDataSource
-import com.example.medicareapp.data.repository.NotificaDataSource
-import com.example.medicareapp.data.repository.UtenteDataSource
-import com.example.medicareapp.data.repository.VisitaDataSource
 
 class VisiteDottoreViewModel(
     private val visitaRepository: VisitaDataSource = VisitaRepository(),
@@ -59,7 +59,7 @@ class VisiteDottoreViewModel(
                 .filter {
                     it.stato.trim().lowercase() == "prenotato"
                 }
-                .sortedWith(compareBy({it.data }, {it.ora}))
+                .sortedWith(compareBy({ it.data }, { it.ora }))
 
             caricaPazienti(listaVisite)
         }
@@ -134,7 +134,8 @@ class VisiteDottoreViewModel(
         visita: Visita,
         esisteAltraVisita: Boolean
     ) {
-        visitaRepository.cancellaVisita(visita.idVisita) { successo, errore ->
+        visitaRepository.cancellaVisita(visita.idVisita) {
+                successo, errore ->
 
             if (!successo) {
                 _caricamento.value = false
@@ -172,14 +173,10 @@ class VisiteDottoreViewModel(
         notificaRepository.creaNotifica(notifica) {
                 notificaCreata, erroreNotifica ->
 
+            // La visita è già stata eliminata da Firestore.
+            // La rimuoviamo anche dalla lista locale.
             _visite.value = _visite.value
-                .map { elemento ->
-                    if (elemento.idVisita == visita.idVisita) {
-                        elemento.copy(stato = "cancellato")
-                    } else {
-                        elemento
-                    }
-                }
+                .filter { it.idVisita != visita.idVisita }
                 .sortedWith(compareBy({ it.data }, { it.ora }))
 
             _caricamento.value = false
@@ -203,24 +200,28 @@ class VisiteDottoreViewModel(
         }
     }
 
-
-    // Segna una visita prenotata come effettuata (cambio di stato)
+    // Segna una visita prenotata come effettuata.
     fun segnaVisitaEffettuata(visita: Visita) {
         if (visita.stato.trim().lowercase() != "prenotato") {
-            _messaggio.value = "È possibile completare solo le visite prenotate."
+            _messaggio.value =
+                "È possibile completare solo le visite prenotate."
             return
         }
 
         val idDottore = authRepository.utenteCorrente()
+
         if (idDottore == null || idDottore != visita.idDottore) {
-            _messaggio.value = "Non sei autorizzato a modificare questa visita."
+            _messaggio.value =
+                "Non sei autorizzato a modificare questa visita."
             return
         }
 
         _caricamento.value = true
         _messaggio.value = null
 
-        visitaRepository.segnaVisitaEffettuata(visita.idVisita) { successo, errore ->
+        visitaRepository.segnaVisitaEffettuata(visita.idVisita) {
+                successo, errore ->
+
             _caricamento.value = false
 
             if (successo) {
@@ -229,11 +230,11 @@ class VisiteDottoreViewModel(
                 }
                 _messaggio.value = "Visita segnata come effettuata."
             } else {
-                _messaggio.value = errore ?: "Errore durante l'aggiornamento della visita."
+                _messaggio.value =
+                    errore ?: "Errore durante l'aggiornamento della visita."
             }
         }
     }
-
 
     fun pulisciMessaggio() {
         _messaggio.value = null
