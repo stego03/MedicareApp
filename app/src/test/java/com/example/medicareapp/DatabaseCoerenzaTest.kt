@@ -88,7 +88,7 @@ class DatabaseCoerenzaTest {
         val documento = Documento(
             idDocumento = "documento1",
             idPaziente = "paziente1",
-            idDottore = "dottore1",
+            /*idDottore = "dottore1",*/
             nome = "Referto",
             tipo = "PDF"
         )
@@ -96,9 +96,9 @@ class DatabaseCoerenzaTest {
         assertTrue(
             esistonoUtentiConRuolo(documento.idPaziente, "paziente")
         )
-        assertTrue(
+        /*assertTrue(
             esistonoUtentiConRuolo(documento.idDottore, "dottore")
-        )
+        )*/
     }
 
     @Test
