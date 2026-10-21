@@ -132,8 +132,8 @@ class DocumentoRepository {
                     idPaziente =
                         idPaziente,
 
-                    idDottore =
-                        "",
+                    /*idDottore =
+                        "",*/
 
                     nome =
                         nomeFile,
@@ -147,8 +147,8 @@ class DocumentoRepository {
                     descrizione =
                         descrizione,
 
-                    urlFile =
-                        "",
+                    /*urlFile =
+                        "",*/
 
                     contenuto =
                         contenuto
